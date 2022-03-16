@@ -200,7 +200,7 @@ const TableList: React.FC = () => {
               handleModalVisible(true);
             }}
           >
-            <PlusOutlined /> 新建
+            <PlusOutlined /> New construction
           </Button>,
         ]}
         request={rule}
