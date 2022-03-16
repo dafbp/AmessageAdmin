@@ -1,7 +1,44 @@
 // @ts-ignore
 /* eslint-disable */
 import { request } from 'umi';
-import { TableListItem } from '../../pages/list/table-list/data.d';
+
+/** Get current users GET /api/currentUser */
+export async function currentUser(options?: { [key: string]: any }) {
+  return request<{
+    data: API.CurrentUser;
+  }>('/api/currentUser', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** Exit login interface POST /api/login/outLogin */
+export async function outLogin(options?: { [key: string]: any }) {
+  return request<Record<string, any>>('/api/login/outLogin', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
+/** Login interface POST /api/login/account */
+export async function login(body: API.LoginParams, options?: { [key: string]: any }) {
+  return request<API.LoginResult>('/api/login/account', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** No comments are available herein GET /api/notices */
+export async function getNotices(options?: { [key: string]: any }) {
+  return request<API.NoticeIconList>('/api/notices', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
 
 /** Get rule list GET /api/rule */
 export async function rule(
@@ -14,12 +51,7 @@ export async function rule(
   },
   options?: { [key: string]: any },
 ) {
-  return request<{
-    data: TableListItem[];
-    /** Total number of contents */
-    total?: number;
-    success?: boolean;
-  }>('/api/rule', {
+  return request<API.RuleList>('/api/rule', {
     method: 'GET',
     params: {
       ...params,
