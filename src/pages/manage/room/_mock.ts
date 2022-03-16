@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { parse } from 'url';
-import type { TableListItem, TableListParams } from './data.d';
+import { TableListItem, TableListParams } from './data.d';
 
 // mock tableListDataSource
 const genList = (current: number, pageSize: number) => {
@@ -17,8 +17,8 @@ const genList = (current: number, pageSize: number) => {
         'https://gw.alipayobjects.com/zos/rmsportal/udxAbMEhpwthVVcjLXik.png',
       ][i % 2],
       name: `TradeCode ${index}`,
-      owner: '曲丽丽',
-      desc: '这是一段描述',
+      owner: 'Tên sở hữu',
+      desc: 'This is a description',
       callNo: Math.floor(Math.random() * 1000),
       status: (Math.floor(Math.random() * 10) % 4).toString(),
       updatedAt: new Date(),
@@ -128,7 +128,7 @@ function postRule(req: Request, res: Response, u: string, b: Request) {
             'https://gw.alipayobjects.com/zos/rmsportal/udxAbMEhpwthVVcjLXik.png',
           ][i % 2],
           name,
-          owner: '曲丽丽',
+          owner: 'Tên sở hữu',
           desc,
           callNo: Math.floor(Math.random() * 1000),
           status: (Math.floor(Math.random() * 10) % 2).toString(),

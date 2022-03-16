@@ -12,33 +12,33 @@ import UpdateForm from './components/UpdateForm';
 import { rule, addRule, updateRule, removeRule } from './service';
 import type { TableListItem, TableListPagination } from './data';
 /**
- * 添加节点
+ * Add node
  *
  * @param fields
  */
 
 const handleAdd = async (fields: TableListItem) => {
-  const hide = message.loading('正在添加');
+  const hide = message.loading('Add');
 
   try {
     await addRule({ ...fields });
     hide();
-    message.success('添加成功');
+    message.success('Added successfully');
     return true;
   } catch (error) {
     hide();
-    message.error('添加失败请重试！');
+    message.error('Please try again!');
     return false;
   }
 };
 /**
- * 更新节点
+ * Update node
  *
  * @param fields
  */
 
 const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) => {
-  const hide = message.loading('正在配置');
+  const hide = message.loading('Be configured');
 
   try {
     await updateRule({
@@ -46,22 +46,22 @@ const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) =
       ...fields,
     });
     hide();
-    message.success('配置成功');
+    message.success('Configure success');
     return true;
   } catch (error) {
     hide();
-    message.error('配置失败请重试！');
+    message.error('If you fail, please try again!');
     return false;
   }
 };
 /**
- * 删除节点
+ * Delete node
  *
  * @param selectedRows
  */
 
 const handleRemove = async (selectedRows: TableListItem[]) => {
-  const hide = message.loading('正在删除');
+  const hide = message.loading('deleting');
   if (!selectedRows) return true;
 
   try {
@@ -69,32 +69,32 @@ const handleRemove = async (selectedRows: TableListItem[]) => {
       key: selectedRows.map((row) => row.key),
     });
     hide();
-    message.success('删除成功，即将刷新');
+    message.success('Delete success, will be refreshed');
     return true;
   } catch (error) {
     hide();
-    message.error('删除失败，请重试');
+    message.error('Delete failed, please try again');
     return false;
   }
 };
 
 const TableList: React.FC = () => {
-  /** 新建窗口的弹窗 */
+  /** New window population */
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  /** 分布更新窗口的弹窗 */
+  /** Distributed update window pop-up window */
 
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<TableListItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
-  /** 国际化配置 */
+  /** International allocation */
 
   const columns: ProColumns<TableListItem>[] = [
     {
-      title: '规则名称',
+      title: 'Rule name',
       dataIndex: 'name',
-      tip: '规则名称是唯一的 key',
+      tip: 'The rule name is the only Key',
       render: (dom, entity) => {
         return (
           <a
@@ -109,42 +109,42 @@ const TableList: React.FC = () => {
       },
     },
     {
-      title: '描述',
+      title: 'describe',
       dataIndex: 'desc',
       valueType: 'textarea',
     },
     {
-      title: '服务调用次数',
+      title: 'Service call',
       dataIndex: 'callNo',
       sorter: true,
       hideInForm: true,
       renderText: (val: string) => `${val}万`,
     },
     {
-      title: '状态',
+      title: 'condition',
       dataIndex: 'status',
       hideInForm: true,
       valueEnum: {
         0: {
-          text: '关闭',
+          text: 'closure',
           status: 'Default',
         },
         1: {
-          text: '运行中',
+          text: 'Run in operation',
           status: 'Processing',
         },
         2: {
-          text: '已上线',
+          text: 'Last line',
           status: 'Success',
         },
         3: {
-          text: '异常',
+          text: 'abnormal',
           status: 'Error',
         },
       },
     },
     {
-      title: '上次调度时间',
+      title: 'Last scheduled time',
       sorter: true,
       dataIndex: 'updatedAt',
       valueType: 'dateTime',
@@ -156,14 +156,14 @@ const TableList: React.FC = () => {
         }
 
         if (`${status}` === '3') {
-          return <Input {...rest} placeholder="请输入异常原因！" />;
+          return <Input {...rest} placeholder="Please enter an exception!" />;
         }
 
         return defaultRender(item);
       },
     },
     {
-      title: '操作',
+      title: 'operate',
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => [
@@ -174,10 +174,10 @@ const TableList: React.FC = () => {
             setCurrentRow(record);
           }}
         >
-          配置
+          Configure
         </a>,
         <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          订阅警报
+          Subscribe alert
         </a>,
       ],
     },
@@ -186,7 +186,7 @@ const TableList: React.FC = () => {
   return (
     <PageContainer>
       <ProTable<TableListItem, TableListPagination>
-        headerTitle="查询表格"
+        headerTitle="Query form"
         actionRef={actionRef}
         rowKey="key"
         search={{
@@ -215,7 +215,7 @@ const TableList: React.FC = () => {
         <FooterToolbar
           extra={
             <div>
-              已选择{' '}
+              chosen{' '}
               <a
                 style={{
                   fontWeight: 600,
@@ -225,7 +225,8 @@ const TableList: React.FC = () => {
               </a>{' '}
               项 &nbsp;&nbsp;
               <span>
-                服务调用次数总计 {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)} 万
+                Total number of service calls{' '}
+                {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)} 万
               </span>
             </div>
           }
@@ -237,13 +238,13 @@ const TableList: React.FC = () => {
               actionRef.current?.reloadAndRest?.();
             }}
           >
-            批量删除
+            batch deletion
           </Button>
-          <Button type="primary">批量审批</Button>
+          <Button type="primary">Batch approval</Button>
         </FooterToolbar>
       )}
       <ModalForm
-        title="新建规则"
+        title="New rules"
         width="400px"
         visible={createModalVisible}
         onVisibleChange={handleModalVisible}
@@ -261,7 +262,7 @@ const TableList: React.FC = () => {
           rules={[
             {
               required: true,
-              message: '规则名称为必填项',
+              message: 'Rule name is required',
             },
           ]}
           width="md"
