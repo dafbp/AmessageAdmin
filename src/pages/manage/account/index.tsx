@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, message, Input, Drawer } from 'antd';
+import { Button, message, Avatar, Drawer } from 'antd';
 import React, { useState, useRef } from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
@@ -10,14 +10,14 @@ import ProDescriptions from '@ant-design/pro-descriptions';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
 import { rule, addRule, updateRule, removeRule } from './service';
-import type { TableListItem, TableListPagination } from './data';
+import type { TableListAccountItem, TableListPagination } from './data';
 /**
  * Add node
  *
  * @param fields
  */
 
-const handleAdd = async (fields: TableListItem) => {
+const handleAdd = async (fields: TableListAccountItem) => {
   const hide = message.loading('Add');
 
   try {
@@ -37,7 +37,7 @@ const handleAdd = async (fields: TableListItem) => {
  * @param fields
  */
 
-const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) => {
+const handleUpdate = async (fields: FormValueType, currentRow?: TableListAccountItem) => {
   const hide = message.loading('Be configured');
 
   try {
@@ -60,7 +60,7 @@ const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) =
  * @param selectedRows
  */
 
-const handleRemove = async (selectedRows: TableListItem[]) => {
+const handleRemove = async (selectedRows: TableListAccountItem[]) => {
   const hide = message.loading('deleting');
   if (!selectedRows) return true;
 
@@ -86,15 +86,19 @@ const TableList: React.FC = () => {
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<TableListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
+  const [currentRow, setCurrentRow] = useState<TableListAccountItem>();
+  const [selectedRowsState, setSelectedRows] = useState<TableListAccountItem[]>([]);
   /** International allocation */
 
-  const columns: ProColumns<TableListItem>[] = [
+  const columns: ProColumns<TableListAccountItem>[] = [
     {
-      title: 'Rule name',
-      dataIndex: 'name',
-      tip: 'The rule name is the only Key',
+      title: '',
+      dataIndex: 'avatar',
+      render: (src) => <Avatar size="small" src={src} />,
+    },
+    {
+      title: 'username',
+      dataIndex: 'username',
       render: (dom, entity) => {
         return (
           <a
@@ -109,61 +113,52 @@ const TableList: React.FC = () => {
       },
     },
     {
-      title: 'describe',
-      dataIndex: 'desc',
+      title: 'FosId',
+      dataIndex: 'FosId',
       valueType: 'textarea',
     },
     {
-      title: 'Service call',
-      dataIndex: 'callNo',
-      sorter: true,
-      hideInForm: true,
-      renderText: (val: string) => `${val}万`,
+      title: '',
+      dataIndex: '',
+      valueType: 'textarea',
     },
     {
-      title: 'condition',
+      title: 'broker',
+      dataIndex: 'broker',
+      valueType: 'textarea',
+    },
+    {
+      title: 'role',
+      dataIndex: 'role',
+      sorter: true,
+      hideInForm: true,
+      renderText: (val: string[]) => val.join(', '),
+    },
+    {
+      title: 'status',
       dataIndex: 'status',
       hideInForm: true,
       valueEnum: {
         0: {
-          text: 'closure',
+          text: 'offline',
           status: 'Default',
         },
         1: {
-          text: 'Run in operation',
+          text: 'Waiting',
           status: 'Processing',
         },
         2: {
-          text: 'Last line',
+          text: 'Online',
           status: 'Success',
         },
         3: {
-          text: 'abnormal',
+          text: 'Do not Disturb',
           status: 'Error',
         },
       },
     },
     {
-      title: 'Last scheduled time',
-      sorter: true,
-      dataIndex: 'updatedAt',
-      valueType: 'dateTime',
-      renderFormItem: (item, { defaultRender, ...rest }, form) => {
-        const status = form.getFieldValue('status');
-
-        if (`${status}` === '0') {
-          return false;
-        }
-
-        if (`${status}` === '3') {
-          return <Input {...rest} placeholder="Please enter an exception!" />;
-        }
-
-        return defaultRender(item);
-      },
-    },
-    {
-      title: 'operate',
+      title: 'Action',
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => [
@@ -176,8 +171,8 @@ const TableList: React.FC = () => {
         >
           Configure
         </a>,
-        <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          Subscribe alert
+        <a key="subscribeAlert" onClick={undefined}>
+          Delete
         </a>,
       ],
     },
@@ -185,7 +180,7 @@ const TableList: React.FC = () => {
 
   return (
     <PageContainer>
-      <ProTable<TableListItem, TableListPagination>
+      <ProTable<TableListAccountItem, TableListPagination>
         headerTitle="Query form"
         actionRef={actionRef}
         rowKey="key"
@@ -249,7 +244,7 @@ const TableList: React.FC = () => {
         visible={createModalVisible}
         onVisibleChange={handleModalVisible}
         onFinish={async (value) => {
-          const success = await handleAdd(value as TableListItem);
+          const success = await handleAdd(value as TableListAccountItem);
           if (success) {
             handleModalVisible(false);
             if (actionRef.current) {
@@ -301,7 +296,7 @@ const TableList: React.FC = () => {
         closable={false}
       >
         {currentRow?.name && (
-          <ProDescriptions<TableListItem>
+          <ProDescriptions<TableListAccountItem>
             column={2}
             title={currentRow?.name}
             request={async () => ({
@@ -310,7 +305,7 @@ const TableList: React.FC = () => {
             params={{
               id: currentRow?.name,
             }}
-            columns={columns as ProDescriptionsItemProps<TableListItem>[]}
+            columns={columns as ProDescriptionsItemProps<TableListAccountItem>[]}
           />
         )}
       </Drawer>

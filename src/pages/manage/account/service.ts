@@ -1,9 +1,9 @@
 // @ts-ignore
 /* eslint-disable */
 import { request } from 'umi';
-import { TableListItem } from './data';
+import { TableListAccountItem } from './data';
 
-/** Get rule list GET /api/rule */
+/** Get rule list GET /api/manage/account */
 export async function rule(
   params: {
     // query
@@ -15,11 +15,11 @@ export async function rule(
   options?: { [key: string]: any },
 ) {
   return request<{
-    data: TableListItem[];
+    data: TableListAccountItem[];
     /** Total number of contents */
     total?: number;
     success?: boolean;
-  }>('/api/rule', {
+  }>('/api/manage/account', {
     method: 'GET',
     params: {
       ...params,
@@ -28,27 +28,27 @@ export async function rule(
   });
 }
 
-/** New rules PUT /api/rule */
+/** New rules PUT /api/manage/account */
 export async function updateRule(data: { [key: string]: any }, options?: { [key: string]: any }) {
-  return request<TableListItem>('/api/rule', {
+  return request<TableListAccountItem>('/api/manage/account', {
     data,
     method: 'PUT',
     ...(options || {}),
   });
 }
 
-/** New rules POST /api/rule */
+/** New rules POST /api/manage/account */
 export async function addRule(data: { [key: string]: any }, options?: { [key: string]: any }) {
-  return request<TableListItem>('/api/rule', {
+  return request<TableListAccountItem>('/api/manage/account', {
     data,
     method: 'POST',
     ...(options || {}),
   });
 }
 
-/** Delete rule DELETE /api/rule */
+/** Delete rule DELETE /api/manage/account */
 export async function removeRule(data: { key: number[] }, options?: { [key: string]: any }) {
-  return request<Record<string, any>>('/api/rule', {
+  return request<Record<string, any>>('/api/manage/account', {
     data,
     method: 'DELETE',
     ...(options || {}),

@@ -1,10 +1,10 @@
 import type { Request, Response } from 'express';
 import { parse } from 'url';
-import { TableListItem, TableListParams } from './data.d';
+import type { TableListAccountItem, TableListParams } from './data.d';
 
 // mock tableListDataSource
 const genList = (current: number, pageSize: number) => {
-  const tableListDataSource: TableListItem[] = [];
+  const tableListDataSource: TableListAccountItem[] = [];
 
   for (let i = 0; i < pageSize; i += 1) {
     const index = (current - 1) * 10 + i;
@@ -18,6 +18,11 @@ const genList = (current: number, pageSize: number) => {
       ][i % 2],
       name: `TradeCode ${index}`,
       owner: 'Tên sở hữu',
+      broker: 'tam.nguyen',
+      username: `user_${index}`,
+      FosId: String(Math.random()),
+      email: 'e' + String(Math.random()),
+      role: ['user', 'broker', 'admin'],
       desc: 'This is a description',
       callNo: Math.floor(Math.random() * 1000),
       status: (Math.floor(Math.random() * 10) % 4).toString(),
@@ -129,6 +134,11 @@ function postRule(req: Request, res: Response, u: string, b: Request) {
           ][i % 2],
           name,
           owner: 'Tên sở hữu',
+          broker: 'tam.nguyen',
+          username: `user_àhakfj`,
+          FosId: String(Math.random()),
+          email: 'e' + String(Math.random()),
+          role: ['user', 'broker', 'admin'],
           desc,
           callNo: Math.floor(Math.random() * 1000),
           status: (Math.floor(Math.random() * 10) % 2).toString(),
@@ -169,8 +179,8 @@ function postRule(req: Request, res: Response, u: string, b: Request) {
 }
 
 export default {
-  'GET /api/rule': getRule,
-  'POST /api/rule': postRule,
-  'DELETE /api/rule': postRule,
-  'PUT /api/rule': postRule,
+  'GET /api/manage/account': getRule,
+  'POST /api/manage/account': postRule,
+  'DELETE /api/manage/account': postRule,
+  'PUT /api/manage/account': postRule,
 };

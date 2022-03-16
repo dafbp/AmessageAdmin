@@ -8,7 +8,7 @@ import {
   ProFormRadio,
   ProFormDateTimePicker,
 } from '@ant-design/pro-form';
-import type { TableListItem } from '../data';
+import type { TableListAccountItem } from '../data';
 
 export type FormValueType = {
   target?: string;
@@ -16,13 +16,13 @@ export type FormValueType = {
   type?: string;
   time?: string;
   frequency?: string;
-} & Partial<TableListItem>;
+} & Partial<TableListAccountItem>;
 
 export type UpdateFormProps = {
   onCancel: (flag?: boolean, formVals?: FormValueType) => void;
   onSubmit: (values: FormValueType) => Promise<void>;
   updateModalVisible: boolean;
-  values: Partial<TableListItem>;
+  values: Partial<TableListAccountItem>;
 };
 
 const UpdateForm: React.FC<UpdateFormProps> = (props) => {
