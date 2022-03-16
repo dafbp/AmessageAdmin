@@ -1,7 +1,7 @@
 // @ts-ignore
 /* eslint-disable */
 import { request } from 'umi';
-import { TableListItem } from './data';
+import { TableListItem } from '../../pages/list/table-list/data.d';
 
 /** Get rule list GET /api/rule */
 export async function rule(
