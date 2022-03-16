@@ -95,6 +95,25 @@ export default defineConfig({
       ],
     },
     {
+      path: '/manage',
+      icon: 'table',
+      name: 'Manage',
+      routes: [
+        {
+          name: 'Account',
+          icon: 'smile',
+          path: '/manage/account',
+          component: 'manage/account/table-account',
+        },
+        {
+          name: 'Room',
+          icon: 'smile',
+          path: '/manage/room',
+          component: 'manage/room/table-room',
+        },
+      ],
+    },
+    {
       path: '/form',
       icon: 'form',
       name: 'form',
