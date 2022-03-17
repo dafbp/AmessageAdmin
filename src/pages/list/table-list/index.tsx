@@ -10,14 +10,14 @@ import ProDescriptions from '@ant-design/pro-descriptions';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
 import { rule, addRule, updateRule, removeRule } from './service';
-import type { TableListItem, TableListPagination } from './data';
+import type { TableListRoomItem, TableListPagination } from './data';
 /**
  * Add node
  *
  * @param fields
  */
 
-const handleAdd = async (fields: TableListItem) => {
+const handleAdd = async (fields: TableListRoomItem) => {
   const hide = message.loading('Add');
 
   try {
@@ -37,7 +37,7 @@ const handleAdd = async (fields: TableListItem) => {
  * @param fields
  */
 
-const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) => {
+const handleUpdate = async (fields: FormValueType, currentRow?: TableListRoomItem) => {
   const hide = message.loading('Be configured');
 
   try {
@@ -60,7 +60,7 @@ const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) =
  * @param selectedRows
  */
 
-const handleRemove = async (selectedRows: TableListItem[]) => {
+const handleRemove = async (selectedRows: TableListRoomItem[]) => {
   const hide = message.loading('deleting');
   if (!selectedRows) return true;
 
@@ -86,11 +86,11 @@ const TableList: React.FC = () => {
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<TableListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
+  const [currentRow, setCurrentRow] = useState<TableListRoomItem>();
+  const [selectedRowsState, setSelectedRows] = useState<TableListRoomItem[]>([]);
   /** International allocation */
 
-  const columns: ProColumns<TableListItem>[] = [
+  const columns: ProColumns<TableListRoomItem>[] = [
     {
       title: 'Rule name',
       dataIndex: 'name',
@@ -185,7 +185,7 @@ const TableList: React.FC = () => {
 
   return (
     <PageContainer>
-      <ProTable<TableListItem, TableListPagination>
+      <ProTable<TableListRoomItem, TableListPagination>
         headerTitle="Query form"
         actionRef={actionRef}
         rowKey="key"
@@ -249,7 +249,7 @@ const TableList: React.FC = () => {
         visible={createModalVisible}
         onVisibleChange={handleModalVisible}
         onFinish={async (value) => {
-          const success = await handleAdd(value as TableListItem);
+          const success = await handleAdd(value as TableListRoomItem);
           if (success) {
             handleModalVisible(false);
             if (actionRef.current) {
@@ -301,7 +301,7 @@ const TableList: React.FC = () => {
         closable={false}
       >
         {currentRow?.name && (
-          <ProDescriptions<TableListItem>
+          <ProDescriptions<TableListRoomItem>
             column={2}
             title={currentRow?.name}
             request={async () => ({
@@ -310,7 +310,7 @@ const TableList: React.FC = () => {
             params={{
               id: currentRow?.name,
             }}
-            columns={columns as ProDescriptionsItemProps<TableListItem>[]}
+            columns={columns as ProDescriptionsItemProps<TableListRoomItem>[]}
           />
         )}
       </Drawer>

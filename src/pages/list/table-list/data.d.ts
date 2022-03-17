@@ -1,10 +1,15 @@
-export type TableListItem = {
+export type TableListRoomItem = {
   key: number;
   disabled?: boolean;
   href: string;
   avatar: string;
   name: string;
   owner: string;
+  broker: string;
+  username: string;
+  FosId: string;
+  email: string;
+  role: string[];
   desc: string;
   callNo: number;
   status: string;
