@@ -188,6 +188,7 @@ const TableList: React.FC = () => {
         search={{
           labelWidth: 120,
         }}
+        
         toolBarRender={() => [
           <Button
             type="primary"

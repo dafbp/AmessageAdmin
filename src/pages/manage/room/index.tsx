@@ -147,7 +147,6 @@ const TableList: React.FC = () => {
 
   useEffect(() => {
     getRoomsData();
-    console.log('getRoomsData', params);
   }, [params]);
 
   const columns: ProColumns<TableListItem>[] = [
@@ -248,32 +247,58 @@ const TableList: React.FC = () => {
         headerTitle="List All Room"
         actionRef={actionRef}
         rowKey="_id"
-        search={{
-          labelWidth: 120,
+        search={false}
+        toolbar={{
+          search: {
+            onSearch: (value) => {
+              setParams((prev: any) => ({
+                ...prev,
+                text: value,
+              }));
+            },
+          },
+          actions: [
+            <Checkbox
+              defaultChecked={params.types.includes('d')}
+              key="Direct"
+              onChange={(val) => checkBoxChange(val.target.checked, 'd')}
+            >
+              Direct
+            </Checkbox>,
+            <Checkbox
+              defaultChecked={params.types.includes('c')}
+              key="Public"
+              onChange={(val) => checkBoxChange(val.target.checked, 'c')}
+            >
+              Public
+            </Checkbox>,
+            <Checkbox
+              defaultChecked={params.types.includes('p')}
+              key="Private"
+              onChange={(val) => checkBoxChange(val.target.checked, 'p')}
+            >
+              Private
+            </Checkbox>,
+            <Checkbox key="Omnichannel" disabled>
+              Omnichannel
+            </Checkbox>,
+            <Checkbox
+              key="Discussions"
+              defaultChecked={params.types.includes('Discussions')}
+              onChange={(val) => checkBoxChange(val.target.checked, 'Discussions')}
+            >
+              Discussions
+            </Checkbox>,
+            <Checkbox
+              defaultChecked={params.types.includes('teams')}
+              key="Teams"
+              onChange={(val) => checkBoxChange(val.target.checked, 'teams')}
+            >
+              Teams
+            </Checkbox>,
+          ],
         }}
-        toolBarRender={() => [
-          <Checkbox key="Direct" onChange={(val) => checkBoxChange(val.target.checked, 'd')}>
-            Direct
-          </Checkbox>,
-          <Checkbox key="Public" onChange={(val) => checkBoxChange(val.target.checked, 'c')}>
-            Public
-          </Checkbox>,
-          <Checkbox key="Private" onChange={(val) => checkBoxChange(val.target.checked, 'p')}>
-            Private
-          </Checkbox>,
-          <Checkbox key="Omnichannel" disabled>
-            Omnichannel
-          </Checkbox>,
-          <Checkbox
-            key="Discussions"
-            onChange={(val) => checkBoxChange(val.target.checked, 'Discussions')}
-          >
-            Discussions
-          </Checkbox>,
-          <Checkbox key="Teams" onChange={(val) => checkBoxChange(val.target.checked, 'teams')}>
-            Teams
-          </Checkbox>,
-        ]}
+        toolBarRender={() => []}
         // request={rule}
         dataSource={listRooms}
         columns={columns}
@@ -295,7 +320,7 @@ const TableList: React.FC = () => {
               >
                 {selectedRowsState.length}
               </a>{' '}
-              项 &nbsp;&nbsp;
+              item &nbsp;&nbsp;
               <span>
                 Total number of service calls{' '}
                 {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)} 万
