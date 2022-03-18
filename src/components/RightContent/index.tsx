@@ -27,7 +27,7 @@ const GlobalHeaderRight: React.FC = () => {
     <Space className={className}>
       <HeaderSearch
         className={`${styles.action} ${styles.search}`}
-        placeholder="站内搜索"
+        placeholder="Site Search"
         defaultValue="umi ui"
         options={[
           {

@@ -348,12 +348,12 @@ export default defineConfig({
   manifest: {
     basePath: '/',
   },
-  // Fast Refresh 热更新
+  // Fast Refresh Hot update
   fastRefresh: {},
   openAPI: [
     {
       requestLibPath: "import { request } from 'umi'",
-      // 或者使用在线的版本
+      // Or use online version
       // schemaPath: "https://gw.alipayobjects.com/os/antfincdn/M%24jrzTTYJN/oneapi.json"
       schemaPath: join(__dirname, 'oneapi.json'),
       mock: false,
