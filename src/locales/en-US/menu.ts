@@ -49,4 +49,7 @@ export default {
   'menu.editor.flow': 'Flow Editor',
   'menu.editor.mind': 'Mind Editor',
   'menu.editor.koni': 'Koni Editor',
+  'menu.Manage': 'Manage',
+  'menu.Manage.Account': 'Account',
+  'menu.Manage.Room': 'Room',
 };

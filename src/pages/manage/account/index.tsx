@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, message, Avatar, Drawer } from 'antd';
+import { Button, message, Avatar, Drawer, Checkbox } from 'antd';
 import React, { useState, useRef } from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
@@ -180,6 +180,7 @@ const TableList: React.FC = () => {
 
   return (
     <PageContainer>
+      <Checkbox onChange={null}>Checkbox</Checkbox>
       <ProTable<TableListAccountItem, TableListPagination>
         headerTitle="Query form"
         actionRef={actionRef}

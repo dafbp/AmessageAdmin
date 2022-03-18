@@ -1,6 +1,6 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, message, Input, Drawer } from 'antd';
-import React, { useState, useRef, useEffect } from 'react';
+import { Button, message, Input, Drawer, Avatar, Checkbox } from 'antd';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -11,7 +11,7 @@ import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
 import { rule, addRule, updateRule, removeRule } from './service';
 import type { TableListItem, TableListPagination } from './data';
-import { API_MANAGE } from '../../../services/api/axios'
+import { API_MANAGE } from '../../../services/api/axios';
 
 /**
  * Add node
@@ -19,7 +19,7 @@ import { API_MANAGE } from '../../../services/api/axios'
  * @param fields
  */
 
-const handleAdd = async (fields: TRoom) => {
+const handleAdd = async (fields: TableListItem) => {
   const hide = message.loading('Add');
 
   try {
@@ -39,7 +39,7 @@ const handleAdd = async (fields: TRoom) => {
  * @param fields
  */
 
-const handleUpdate = async (fields: FormValueType, currentRow?: TRoom) => {
+const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) => {
   const hide = message.loading('Be configured');
 
   try {
@@ -62,7 +62,7 @@ const handleUpdate = async (fields: FormValueType, currentRow?: TRoom) => {
  * @param selectedRows
  */
 
-const handleRemove = async (selectedRows: TRoom[]) => {
+const handleRemove = async (selectedRows: TableListItem[]) => {
   const hide = message.loading('deleting');
   if (!selectedRows) return true;
 
@@ -93,6 +93,32 @@ declare type TRoom = {
   usersCount: number;
   _id: string;
 };
+export const DEFAULT_TYPES = ['p', 'c', 'd', 'teams'];
+
+const useQuery = (
+  {
+    text,
+    types,
+    itemsPerPage,
+    current,
+  }: {
+    types: string[];
+    text: string;
+    current: number;
+    itemsPerPage: number;
+  },
+  [column, direction]: [number, string],
+) =>
+  useMemo(
+    () => ({
+      filter: text || '',
+      types,
+      sort: JSON.stringify({ [column]: direction === 'asc' ? 1 : -1 }),
+      ...(itemsPerPage && { count: itemsPerPage }),
+      ...(current && { offset: current }),
+    }),
+    [text, types, itemsPerPage, current, column, direction],
+  );
 
 const TableList: React.FC = () => {
   /** New window population */
@@ -102,99 +128,89 @@ const TableList: React.FC = () => {
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<TRoom>();
-  const [selectedRowsState, setSelectedRows] = useState<TRoom[]>([]);
+  const [currentRow, setCurrentRow] = useState<TableListItem>();
+  const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
   /** International allocation */
+  const [params, setParams] = useState({
+    text: '',
+    types: DEFAULT_TYPES,
+    current: 0,
+    itemsPerPage: 25,
+  });
 
   const [listRooms, setListRooms] = useState([]);
 
-  // const getRoomsData =async () => {
-  //   console.log('getRoomsData nnnn');
-    
-  //   const res = await API_MANAGE.getAllRoom(['p', 'c', 'teams'], '');
-  //   console.log('getRoomsData', res);
-  //   setListRooms(res.data.rooms);
-    
-  // }
-  // useEffect(() => {
-  //   getRoomsData()
-  // }, []);
+  const getRoomsData = async () => {
+    const res = await API_MANAGE.getAllRoom(params);
+    setListRooms(res.data);
+  };
 
+  useEffect(() => {
+    getRoomsData();
+    console.log('getRoomsData', params);
+  }, [params]);
 
-  const columns: ProColumns<TRoom>[] = [
+  const columns: ProColumns<TableListItem>[] = [
     {
-      title: 'Rule name',
+      title: '',
+      dataIndex: 'avatar',
+      render: (src) => <Avatar size="small" src={src} />,
+    },
+    {
+      title: 'Name',
       dataIndex: 'name',
-      tip: 'The rule name is the only Key',
-      render: (dom, entity) => {
+      render: (dom, room) => {
         return (
           <a
             onClick={() => {
-              setCurrentRow(entity);
+              setCurrentRow(room);
               setShowDetail(true);
             }}
           >
-            {dom}
+            {room.t === 'd' ? room.usernames.join(' x ') : dom}
           </a>
         );
       },
     },
     {
-      title: 'describe',
-      dataIndex: 'desc',
-      valueType: 'textarea',
-    },
-    {
-      title: 'Service call',
-      dataIndex: 'callNo',
+      title: 'Type',
+      dataIndex: 't',
       sorter: true,
-      hideInForm: true,
-      renderText: (val: string) => `${val}万`,
-    },
-    {
-      title: 'condition',
-      dataIndex: 'status',
-      hideInForm: true,
       valueEnum: {
-        0: {
-          text: 'closure',
-          status: 'Default',
+        p: {
+          text: 'Room',
         },
-        1: {
-          text: 'Run in operation',
-          status: 'Processing',
+        d: {
+          text: 'Direct',
         },
-        2: {
-          text: 'Last line',
-          status: 'Success',
+        teams: {
+          text: 'Teams',
         },
-        3: {
-          text: 'abnormal',
-          status: 'Error',
+        c: {
+          text: 'Channel',
         },
       },
     },
     {
-      title: 'Last scheduled time',
+      title: 'Users Count',
+      dataIndex: 'usersCount',
+      hideInForm: true,
       sorter: true,
-      dataIndex: 'updatedAt',
-      valueType: 'dateTime',
-      renderFormItem: (item, { defaultRender, ...rest }, form) => {
-        const status = form.getFieldValue('status');
-
-        if (`${status}` === '0') {
-          return false;
-        }
-
-        if (`${status}` === '3') {
-          return <Input {...rest} placeholder="Please enter an exception!" />;
-        }
-
-        return defaultRender(item);
-      },
     },
     {
-      title: 'operate',
+      title: 'Msgs',
+      dataIndex: 'msgs',
+      hideInForm: true,
+      sorter: true,
+    },
+    {
+      title: 'Default',
+      dataIndex: 'default',
+      hideInForm: true,
+      renderText: (val) => String(val),
+    },
+    {
+      title: 'Action',
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => [
@@ -207,34 +223,59 @@ const TableList: React.FC = () => {
         >
           Configure
         </a>,
-        <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          Subscribe alert
-        </a>,
       ],
     },
   ];
 
+  // const searchRooms = (value, type) => {};
+  const checkBoxChange = (value: boolean, type: string) => {
+    if (value) {
+      setParams((prev: any) => ({
+        ...prev,
+        types: [...prev.types, type],
+      }));
+    } else {
+      setParams((prev: any) => ({
+        ...prev,
+        types: params.types.filter((t: string) => t !== type),
+      }));
+    }
+  };
+
   return (
     <PageContainer>
-      <ProTable<TRoom, TableListPagination>
-        headerTitle="Query form"
+      <ProTable<TableListItem, TableListPagination>
+        headerTitle="List All Room"
         actionRef={actionRef}
-        rowKey="key"
+        rowKey="_id"
         search={{
           labelWidth: 120,
         }}
         toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              handleModalVisible(true);
-            }}
+          <Checkbox key="Direct" onChange={(val) => checkBoxChange(val.target.checked, 'd')}>
+            Direct
+          </Checkbox>,
+          <Checkbox key="Public" onChange={(val) => checkBoxChange(val.target.checked, 'c')}>
+            Public
+          </Checkbox>,
+          <Checkbox key="Private" onChange={(val) => checkBoxChange(val.target.checked, 'p')}>
+            Private
+          </Checkbox>,
+          <Checkbox key="Omnichannel" disabled>
+            Omnichannel
+          </Checkbox>,
+          <Checkbox
+            key="Discussions"
+            onChange={(val) => checkBoxChange(val.target.checked, 'Discussions')}
           >
-            <PlusOutlined /> New construction
-          </Button>,
+            Discussions
+          </Checkbox>,
+          <Checkbox key="Teams" onChange={(val) => checkBoxChange(val.target.checked, 'teams')}>
+            Teams
+          </Checkbox>,
         ]}
-        request={API_MANAGE.getAllRoom()}
+        // request={rule}
+        dataSource={listRooms}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => {
@@ -280,7 +321,7 @@ const TableList: React.FC = () => {
         visible={createModalVisible}
         onVisibleChange={handleModalVisible}
         onFinish={async (value) => {
-          const success = await handleAdd(value as TRoom);
+          const success = await handleAdd(value as TableListItem);
           if (success) {
             handleModalVisible(false);
             if (actionRef.current) {
@@ -332,7 +373,7 @@ const TableList: React.FC = () => {
         closable={false}
       >
         {currentRow?.name && (
-          <ProDescriptions<TRoom>
+          <ProDescriptions<TableListItem>
             column={2}
             title={currentRow?.name}
             request={async () => ({
@@ -341,7 +382,7 @@ const TableList: React.FC = () => {
             params={{
               id: currentRow?.name,
             }}
-            columns={columns as ProDescriptionsItemProps<TRoom>[]}
+            columns={columns as ProDescriptionsItemProps<TableListItem>[]}
           />
         )}
       </Drawer>

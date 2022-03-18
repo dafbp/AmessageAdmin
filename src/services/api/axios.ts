@@ -48,26 +48,32 @@ const API_CHAT = {
 }
 
 const API_MANAGE = {
-  getAllRoom: async (types?: string[], search?: string) => {
+  // getAllRoom: async (types: string[], text: string, current: number, itemsPerPage: number ): Promise<any> => {
+  getAllRoom: async ({ types, text, current, itemsPerPage }: {
+    types: string[],
+    text: string,
+    current: number,
+    itemsPerPage: number
+  }): Promise<any> => {
     try {
-      // const DEFAULT_TYPES = ['d', 'p', 'c', 'teams'];
-      // const resp = await fetch(`${domain}rooms.adminRooms?types[]=c&types[]=p&filter=GENERAL`)
       const resp = await axios
         .get(
           `${domain}rooms.adminRooms`,
           {
             params: {
               types: types,
-              filter: search
+              filter: text,
+              current,
+              itemsPerPage,
             },
             headers: config.headers
           }
         )
-        return {
-          data: resp.data.rooms,
-          success: resp.data.success,
-          number: resp.data.total
-        }
+      return {
+        data: resp.data.rooms,
+        success: resp.data.success,
+        number: resp.data.total
+      }
     } catch (err) {
       // Handle Error Here
       console.error(err);
