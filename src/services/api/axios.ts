@@ -1,7 +1,6 @@
-import axios from 'axios'
+import axios from 'axios';
 
-
-const domain = 'https://chat.altisss.vn/api/v1/'
+export const domain = 'https://chat.altisss.vn/api/v1/';
 
 declare type TRoom = {
   default: boolean;
@@ -17,12 +16,12 @@ declare type TRoom = {
   _id: string;
 };
 
-const config = {
+export const config = {
   headers: {
-    'X-Auth-Token': 'dkpZXwwxymDNrxlWNijgX89w0sZMx8BHLzDzcf8ISmw',
+    'X-Auth-Token': '4LYNqdTA4-IoUuIP8_jTfrmBrcFpSz3myl_tM6gSDA8',
     'X-User-Id': 'rwD8GRfHhDTAPXvvF',
     'Content-type': 'application/json',
-    'Access-Control-Allow-Origin': '*'
+    'Access-Control-Allow-Origin': '*',
   },
 };
 // axios.head('https://chat.altisss.vn', config)
@@ -30,50 +29,50 @@ const config = {
 const API_CHAT = {
   postMessage: async (roomId: string, text: string) => {
     try {
-      const resp = await axios
-        .post(
-          `${domain}chat.postMessage`,
-          {
-            roomId: roomId || '@dungnguyen.nvd',
-            text: text || '',
-          },
-          config,
-        )
+      const resp = await axios.post(
+        `${domain}chat.postMessage`,
+        {
+          roomId: roomId || '@dungnguyen.nvd',
+          text: text || '',
+        },
+        config,
+      );
       console.log(resp.data);
     } catch (err) {
       // Handle Error Here
       console.error(err);
     }
-  }
-}
+  },
+};
 
 const API_MANAGE = {
   // getAllRoom: async (types: string[], text: string, current: number, itemsPerPage: number ): Promise<any> => {
-  getAllRoom: async ({ types, text, current, itemsPerPage }: {
-    types: string[],
-    text: string,
-    current: number,
-    itemsPerPage: number
+  getAllRoom: async ({
+    types,
+    text,
+    current,
+    itemsPerPage,
+  }: {
+    types: string[];
+    text: string;
+    current: number;
+    itemsPerPage: number;
   }): Promise<any> => {
     try {
-      const resp = await axios
-        .get(
-          `${domain}rooms.adminRooms`,
-          {
-            params: {
-              types: types,
-              filter: text,
-              current,
-              itemsPerPage,
-            },
-            headers: config.headers
-          }
-        )
+      const resp = await axios.get(`${domain}rooms.adminRooms`, {
+        params: {
+          types: types,
+          filter: text,
+          current,
+          itemsPerPage,
+        },
+        headers: config.headers,
+      });
       return {
         data: resp.data.rooms,
         success: resp.data.success,
-        number: resp.data.total
-      }
+        number: resp.data.total,
+      };
     } catch (err) {
       // Handle Error Here
       console.error(err);
@@ -81,19 +80,13 @@ const API_MANAGE = {
   },
   getAllAccount: async () => {
     try {
-      const resp = await axios
-        .get(
-          `${domain}user.list`,
-          config,
-        )
+      const resp = await axios.get(`${domain}user.list`, config);
       console.log(resp.data);
     } catch (err) {
       // Handle Error Here
       console.error(err);
     }
-  }
-}
-
-
+  },
+};
 
 export { API_CHAT, API_MANAGE };

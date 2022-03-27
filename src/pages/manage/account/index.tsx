@@ -1,6 +1,6 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, message, Avatar, Drawer, Checkbox } from 'antd';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -9,8 +9,10 @@ import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
-import { rule, addRule, updateRule, removeRule } from './service';
+import { rule, addRule, updateRule, removeRule, getListUserBroker } from './service';
 import type { TableListAccountItem, TableListPagination } from './data';
+import { useRequest, request } from 'umi';
+import { domain, config } from '@/services/api/axios';
 /**
  * Add node
  *
@@ -88,6 +90,7 @@ const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<TableListAccountItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableListAccountItem[]>([]);
+  const [onlyBroker, setOnlyBroker] = useState(false);
   /** International allocation */
 
   const columns: ProColumns<TableListAccountItem>[] = [
@@ -132,7 +135,7 @@ const TableList: React.FC = () => {
       dataIndex: 'role',
       sorter: true,
       hideInForm: true,
-      renderText: (val: string[]) => val.join(', '),
+      // renderText: (val: string[]) => val.join(', '),
     },
     {
       title: 'status',
@@ -178,29 +181,37 @@ const TableList: React.FC = () => {
     },
   ];
 
+  const {
+    data,
+    error,
+    loading,
+    run: refetchList,
+  } = useRequest((isBroker) => getListUserBroker({ role: isBroker ? 'Manager' : 'user' }), {
+    // onSuccess: (res, params) => console.log('onSuccess', res, params),
+    formatResult: (res) => res,
+  });
+  const listUser = data?.users;
+
   return (
     <PageContainer>
-      <Checkbox onChange={null}>Checkbox</Checkbox>
       <ProTable<TableListAccountItem, TableListPagination>
-        headerTitle="Query form"
+        headerTitle="List User"
         actionRef={actionRef}
-        rowKey="key"
-        search={{
-          labelWidth: 120,
-        }}
-        
+        rowKey="_id"
+        search={false}
         toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              handleModalVisible(true);
+          <Checkbox
+            defaultChecked={onlyBroker}
+            key="Direct"
+            onChange={(val) => {
+              refetchList(val.target.checked);
+              setOnlyBroker(val.target.checked);
             }}
           >
-            <PlusOutlined /> New construction
-          </Button>,
+            Only Broker
+          </Checkbox>,
         ]}
-        request={rule}
+        dataSource={listUser}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => {
@@ -220,7 +231,7 @@ const TableList: React.FC = () => {
               >
                 {selectedRowsState.length}
               </a>{' '}
-              项 &nbsp;&nbsp;
+              item &nbsp;&nbsp;
               <span>
                 Total number of service calls{' '}
                 {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)} 万

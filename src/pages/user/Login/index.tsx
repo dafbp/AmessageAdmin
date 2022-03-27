@@ -1,16 +1,12 @@
 import Footer from '@/components/Footer';
-import { login } from '@/services/ant-design-pro/api';
+import { login, USER_API } from '@/services/ant-design-pro/api';
 import { getFakeCaptcha } from '@/services/ant-design-pro/login';
-import {
-  LockOutlined,
-  MobileOutlined, UserOutlined
-} from '@ant-design/icons';
+import { LockOutlined, MobileOutlined, UserOutlined } from '@ant-design/icons';
 import { LoginForm, ProFormCaptcha, ProFormCheckbox, ProFormText } from '@ant-design/pro-form';
 import { Alert, message, Tabs } from 'antd';
 import React, { useState } from 'react';
 import { FormattedMessage, history, SelectLang, useIntl, useModel } from 'umi';
 import styles from './index.less';
-
 
 const LoginMessage: React.FC<{
   content: string;
@@ -45,7 +41,6 @@ const Login: React.FC = () => {
   const handleSubmit = async (values: API.LoginParams) => {
     try {
       // Log in
-
       const msg = await login({ ...values, type });
       console.log(msg, { ...values, type });
       if (msg.status === 'ok') {
@@ -77,6 +72,36 @@ const Login: React.FC = () => {
   };
   const { status, type: loginType } = userLoginState;
 
+  const handleLoginRocketChat = async (values: any) => {
+    console.log('{ ...values, type }', values);
+    const { data, success, error } = await USER_API.login({
+      user: values.username,
+      password: values.password,
+    });
+    if (success) {
+      const defaultLoginSuccessMessage = intl.formatMessage({
+        id: 'pages.login.success',
+        defaultMessage: 'login successful!',
+      });
+      message.success(defaultLoginSuccessMessage);
+      await fetchUserInfo();
+      /** This method will jump to redirect Parameter location */
+      if (!history) return;
+      const { query } = history.location;
+      const { redirect } = query as { redirect: string };
+      history.push(redirect || '/');
+    }
+    if (!success) {
+      console.log('erroe', error);
+      const defaultLoginFailureMessage = intl.formatMessage({
+        id: 'pages.login.failure',
+        defaultMessage: 'Login failed, please try again!',
+      });
+      message.error(defaultLoginFailureMessage);
+    }
+    console.log('USER_API.login(', { data, success, error });
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.lang} data-lang>
@@ -90,18 +115,23 @@ const Login: React.FC = () => {
           initialValues={{
             autoLogin: true,
           }}
-          actions={[
-            // <FormattedMessage
-            //   key="loginWith"
-            //   id="pages.login.loginWith"
-            //   defaultMessage="Other login mode"
-            // />,
-            // <AlipayCircleOutlined key="AlipayCircleOutlined" className={styles.icon} />,
-            // <TaobaoCircleOutlined key="TaobaoCircleOutlined" className={styles.icon} />,
-            // <WeiboCircleOutlined key="WeiboCircleOutlined" className={styles.icon} />,
-          ]}
+          actions={
+            [
+              // <FormattedMessage
+              //   key="loginWith"
+              //   id="pages.login.loginWith"
+              //   defaultMessage="Other login mode"
+              // />,
+              // <AlipayCircleOutlined key="AlipayCircleOutlined" className={styles.icon} />,
+              // <TaobaoCircleOutlined key="TaobaoCircleOutlined" className={styles.icon} />,
+              // <WeiboCircleOutlined key="WeiboCircleOutlined" className={styles.icon} />,
+            ]
+          }
           onFinish={async (values) => {
+            console.log('values', values);
+
             await handleSubmit(values as API.LoginParams);
+            await handleLoginRocketChat(values);
           }}
         >
           <Tabs activeKey={type} onChange={setType}>
@@ -178,7 +208,9 @@ const Login: React.FC = () => {
             </>
           )}
 
-          {status === 'error' && loginType === 'mobile' && <LoginMessage content="验证码错误" />}
+          {status === 'error' && loginType === 'mobile' && (
+            <LoginMessage content="Verification code error" />
+          )}
           {type === 'mobile' && (
             <>
               <ProFormText
@@ -286,3 +318,150 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+
+interface ILoginResult {
+  userId: string;
+  authToken: string;
+  me: Me;
+}
+
+interface Me {
+  _id: string;
+  services: Services;
+  emails: Email[];
+  status: string;
+  active: boolean;
+  _updatedAt: string;
+  roles: string[];
+  name: string;
+  statusConnection: string;
+  utcOffset: number;
+  username: string;
+  settings: Settings;
+  statusText: string;
+  statusDefault: string;
+  banners: Banners;
+  language: string;
+  requirePasswordChange: boolean;
+  statusLivechat: string;
+  customFields: CustomFields;
+  avatarETag: string;
+  avatarOrigin: string;
+  nickname: string;
+  email: string;
+  avatarUrl: string;
+}
+
+interface CustomFields {
+  brokerId: string;
+  phone: string;
+}
+
+interface Banners {
+  'versionUpdate-4_1_2': VersionUpdate412;
+  'versionUpdate-4_2_0': VersionUpdate412;
+  'versionUpdate-4_2_1': VersionUpdate412;
+  mongodbDeprecation_4_0_27: MongodbDeprecation4027;
+  'versionUpdate-4_2_2': VersionUpdate412;
+  'alert-61baeab0907d6ac39efa4cb3': Alert61baeab0907d6ac39efa4cb3;
+  'versionUpdate-4_3_0': VersionUpdate412;
+  'versionUpdate-4_3_1': VersionUpdate412;
+  'versionUpdate-4_3_2': VersionUpdate412;
+  'versionUpdate-4_4_0': VersionUpdate412;
+  'versionUpdate-4_4_1': VersionUpdate412;
+  'versionUpdate-4_4_2': VersionUpdate412;
+  'versionUpdate-4_5_0': VersionUpdate412;
+  'versionUpdate-4_5_1': VersionUpdate412;
+  'versionUpdate-4_5_2': VersionUpdate412;
+  'versionUpdate-4_5_3': VersionUpdate412;
+  'versionUpdate-4_5_4': VersionUpdate412;
+}
+
+interface Alert61baeab0907d6ac39efa4cb3 {
+  id: string;
+  priority: number;
+  title: string;
+  text: string;
+  textArguments: any[];
+  modifiers: any[];
+  link: string;
+  read: boolean;
+}
+
+interface MongodbDeprecation4027 {
+  id: string;
+  priority: number;
+  title: string;
+  text: string;
+  textArguments: string[];
+  modifiers: string[];
+  link: string;
+  read: boolean;
+}
+
+interface VersionUpdate412 {
+  id: string;
+  priority: number;
+  title: string;
+  text: string;
+  textArguments: string[];
+  link: string;
+  read: boolean;
+}
+
+interface Settings {
+  preferences: Preferences;
+}
+
+interface Preferences {
+  enableAutoAway: boolean;
+  idleTimeLimit: number;
+  desktopNotificationRequireInteraction: boolean;
+  desktopNotifications: string;
+  unreadAlert: boolean;
+  useEmojis: boolean;
+  convertAsciiEmoji: boolean;
+  autoImageLoad: boolean;
+  saveMobileBandwidth: boolean;
+  hideUsernames: boolean;
+  hideRoles: boolean;
+  hideFlexTab: boolean;
+  displayAvatars: boolean;
+  sidebarGroupByType: boolean;
+  sidebarViewMode: string;
+  sidebarDisplayAvatar: boolean;
+  sidebarShowUnread: boolean;
+  sidebarSortby: string;
+  sidebarShowFavorites: boolean;
+  sendOnEnter: string;
+  messageViewMode: number;
+  emailNotificationMode: string;
+  newRoomNotification: string;
+  newMessageNotification: string;
+  enableMessageParserEarlyAdoption: boolean;
+  pushNotifications: string;
+  collapseMediaByDefault: boolean;
+  showMessageInMainThread: boolean;
+  muteFocusedConversations: boolean;
+  notificationsSoundVolume: number;
+  language: string;
+  dontAskAgainList: DontAskAgainList[];
+}
+
+interface DontAskAgainList {
+  action: string;
+  label: string;
+}
+
+interface Email {
+  address: string;
+  verified: boolean;
+}
+
+interface Services {
+  password: Password;
+}
+
+interface Password {
+  bcrypt: string;
+}

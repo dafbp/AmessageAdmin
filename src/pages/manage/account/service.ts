@@ -1,5 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
+import { domain, config } from '@/services/api/axios';
 import { request } from 'umi';
 import { TableListAccountItem } from './data';
 
@@ -53,4 +54,27 @@ export async function removeRule(data: { key: number[] }, options?: { [key: stri
     method: 'DELETE',
     ...(options || {}),
   });
+}
+
+export async function getListUserBroker(
+  params: {
+    role?: string;
+    roomId?: string;
+  },
+  options?: { [key: string]: any },
+) {
+  const result = request<{
+    users: any[];
+    /** Total number of contents */
+    total?: number;
+    success?: boolean;
+  }>(`${domain}roles.getUsersInRole`, {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+    ...config,
+  });
+  return result;
 }

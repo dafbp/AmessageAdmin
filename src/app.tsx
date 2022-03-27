@@ -6,6 +6,13 @@ import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
 import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
 import { BookOutlined, LinkOutlined } from '@ant-design/icons';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+  QueryClientProvider,
+} from 'react-query';
 
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
@@ -81,4 +88,32 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     // unAccessible: <div>unAccessible</div>,
     ...initialState?.settings,
   };
+};
+
+type RequestConfig = any;
+const errorHandler = function (error: any) {
+  const codeMap = {
+    '021': 'An error has occurred',
+    '022': 'It’s a big mistake,',
+    // ....
+  };
+  if (error.response) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx
+    console.log(error.response.status);
+    console.log(error.response.headers);
+    console.log(error.data);
+    console.log(error.request);
+    console.log(codeMap[error.data.status]);
+  } else {
+    // The request was made but no response was received or error occurs when setting up the request.
+    console.log(error.message);
+  }
+
+  throw error; // If throw. The error will continue to be thrown.
+};
+
+export const request: RequestConfig = {
+  errorHandler,
+  middlewares: [],
 };

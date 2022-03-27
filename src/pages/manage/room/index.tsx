@@ -1,4 +1,3 @@
-import { PlusOutlined } from '@ant-design/icons';
 import { Button, message, Input, Drawer, Avatar, Checkbox } from 'antd';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
@@ -9,7 +8,7 @@ import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
-import { rule, addRule, updateRule, removeRule } from './service';
+import { addRule, updateRule, removeRule } from './service';
 import type { TableListItem, TableListPagination } from './data';
 import { API_MANAGE } from '../../../services/api/axios';
 
@@ -95,31 +94,6 @@ declare type TRoom = {
 };
 export const DEFAULT_TYPES = ['p', 'c', 'd', 'teams'];
 
-const useQuery = (
-  {
-    text,
-    types,
-    itemsPerPage,
-    current,
-  }: {
-    types: string[];
-    text: string;
-    current: number;
-    itemsPerPage: number;
-  },
-  [column, direction]: [number, string],
-) =>
-  useMemo(
-    () => ({
-      filter: text || '',
-      types,
-      sort: JSON.stringify({ [column]: direction === 'asc' ? 1 : -1 }),
-      ...(itemsPerPage && { count: itemsPerPage }),
-      ...(current && { offset: current }),
-    }),
-    [text, types, itemsPerPage, current, column, direction],
-  );
-
 const TableList: React.FC = () => {
   /** New window population */
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
@@ -141,8 +115,12 @@ const TableList: React.FC = () => {
   const [listRooms, setListRooms] = useState([]);
 
   const getRoomsData = async () => {
-    const res = await API_MANAGE.getAllRoom(params);
-    setListRooms(res.data);
+    const { data, success } = await API_MANAGE.getAllRoom(params);
+    if (success) {
+      setListRooms(data);
+    } else {
+      message.warn('Có lỗi xảy ra');
+    }
   };
 
   useEffect(() => {
