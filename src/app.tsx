@@ -4,20 +4,13 @@ import type { RunTimeLayoutConfig } from 'umi';
 import { history, Link } from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
-import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
+import { currentUser as queryCurrentUser, USER_API } from './services/ant-design-pro/api';
 import { BookOutlined, LinkOutlined } from '@ant-design/icons';
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  QueryClient,
-  QueryClientProvider,
-} from 'react-query';
 
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
-/** 获取用户信息比较慢的时候会展示一个 loading */
+/** When you get user information, you will show a time. loading */
 export const initialStateConfig = {
   loading: <PageLoading />,
 };
@@ -25,36 +18,39 @@ export const initialStateConfig = {
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
+
 export async function getInitialState(): Promise<{
   settings?: Partial<LayoutSettings>;
   currentUser?: API.CurrentUser;
   fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
 }> {
-  const fetchUserInfo = async () => {
+  const fetchUserInfo = async (userId: string) => {
     try {
-      const msg = await queryCurrentUser();
+      const msg = await USER_API.userInfo({ userId });
+      console.log('USER_API.userInfo', msg, userId);
+
       return msg.data;
     } catch (error) {
       history.push(loginPath);
     }
     return undefined;
   };
-  // 如果是登录页面，不执行
-  if (history.location.pathname !== loginPath) {
-    const currentUser = await fetchUserInfo();
-    return {
-      fetchUserInfo,
-      currentUser,
-      settings: {},
-    };
-  }
+  // If it is a login page, do not execute
+  // if (history.location.pathname !== loginPath) {
+  //   const currentUser = await fetchUserInfo();
+  //   return {
+  //     fetchUserInfo,
+  //     currentUser,
+  //     settings: {},
+  //   };
+  // }
   return {
     fetchUserInfo,
     settings: {},
   };
 }
 
-// ProLayout 支持的api https://procomponents.ant.design/components/layout
+// ProLayout Supported API https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState }) => {
   return {
     rightContentRender: () => <RightContent />,
@@ -66,7 +62,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
-      // 如果没有登录，重定向到 login
+      // If you don't log in, redirect to login
       if (!initialState?.currentUser && location.pathname !== loginPath) {
         history.push(loginPath);
       }
@@ -84,7 +80,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
         ]
       : [],
     menuHeaderRender: undefined,
-    // 自定义 403 页面
+    // Custom 403 Page
     // unAccessible: <div>unAccessible</div>,
     ...initialState?.settings,
   };

@@ -97,11 +97,13 @@ const TableList: React.FC = () => {
     {
       title: '',
       dataIndex: 'avatar',
-      render: (src) => <Avatar size="small" src={src} />,
+      render: (src, row) => (
+        <Avatar size="small" src={`https://chat.altisss.vn/avatar/${row.username}`} />
+      ),
     },
     {
-      title: 'username',
-      dataIndex: 'username',
+      title: 'name',
+      dataIndex: 'name',
       render: (dom, entity) => {
         return (
           <a
@@ -116,43 +118,86 @@ const TableList: React.FC = () => {
       },
     },
     {
-      title: 'FosId',
-      dataIndex: 'FosId',
+      title: 'nickname',
+      dataIndex: 'nickname',
       valueType: 'textarea',
+      hideInTable: true,
     },
     {
-      title: '',
-      dataIndex: '',
-      valueType: 'textarea',
+      title: 'username',
+      dataIndex: 'username',
+      hideInTable: true,
+    },
+    {
+      title: 'email',
+      dataIndex: 'emails',
+      renderText: (val: []) => {
+        return val[0]?.address;
+      },
+    },
+    {
+      title: 'verify',
+      dataIndex: 'emails',
+      renderText: (val: []) => {
+        return String(val[0]?.verified);
+      },
+    },
+    {
+      title: 'FosId',
+      dataIndex: 'FosId',
+      hideInTable: true,
+    },
+    {
+      title: 'TradingAccount',
+      dataIndex: 'TradingAccount',
+      hideInTable: true,
+    },
+    {
+      title: 'bio',
+      dataIndex: 'bio',
+      hideInTable: true,
     },
     {
       title: 'broker',
-      dataIndex: 'broker',
-      valueType: 'textarea',
+      dataIndex: 'customFields',
+      renderText: (val: string[]) => {
+        return val?.brokerId;
+      },
     },
     {
-      title: 'role',
-      dataIndex: 'role',
+      title: 'phone',
+      dataIndex: 'customFields',
+      // valueType: 'textarea',
+      renderText: (val: string[]) => {
+        return val?.phone;
+      },
+    },
+    {
+      title: 'roles',
+      dataIndex: 'roles',
       sorter: true,
       hideInForm: true,
-      // renderText: (val: string[]) => val.join(', '),
+      renderText: (val: string[]) => val?.join(', '),
     },
     {
       title: 'status',
       dataIndex: 'status',
-      hideInForm: true,
+      // hideInForm: true,
       valueEnum: {
         0: {
           text: 'offline',
           status: 'Default',
+          color: 'primary',
         },
         1: {
           text: 'Waiting',
           status: 'Processing',
+          color: 'orange',
         },
         2: {
           text: 'Online',
           status: 'Success',
+          color: 'orange',
         },
         3: {
           text: 'Do not Disturb',
@@ -191,6 +236,7 @@ const TableList: React.FC = () => {
     formatResult: (res) => res,
   });
   const listUser = data?.users;
+  console.log('listUser', listUser);
 
   return (
     <PageContainer>
@@ -199,6 +245,7 @@ const TableList: React.FC = () => {
         actionRef={actionRef}
         rowKey="_id"
         search={false}
+        scroll={{ x: 600 }}
         toolBarRender={() => [
           <Checkbox
             defaultChecked={onlyBroker}

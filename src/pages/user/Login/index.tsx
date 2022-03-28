@@ -38,38 +38,6 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (values: API.LoginParams) => {
-    try {
-      // Log in
-      const msg = await login({ ...values, type });
-      console.log(msg, { ...values, type });
-      if (msg.status === 'ok') {
-        const defaultLoginSuccessMessage = intl.formatMessage({
-          id: 'pages.login.success',
-          defaultMessage: 'login successful!',
-        });
-        message.success(defaultLoginSuccessMessage);
-        await fetchUserInfo();
-        /** This method will jump to redirect Parameter location */
-        if (!history) return;
-        const { query } = history.location;
-        const { redirect } = query as { redirect: string };
-        history.push(redirect || '/');
-        return;
-      }
-      console.log(msg);
-      // If you fail to set user error messages
-      setUserLoginState(msg);
-    } catch (error) {
-      console.log('erroe', error);
-
-      const defaultLoginFailureMessage = intl.formatMessage({
-        id: 'pages.login.failure',
-        defaultMessage: 'Login failed, please try again!',
-      });
-      message.error(defaultLoginFailureMessage);
-    }
-  };
   const { status, type: loginType } = userLoginState;
 
   const handleLoginRocketChat = async (values: any) => {
@@ -84,7 +52,9 @@ const Login: React.FC = () => {
         defaultMessage: 'login successful!',
       });
       message.success(defaultLoginSuccessMessage);
-      await fetchUserInfo();
+      console.log('data', data);
+
+      await fetchUserInfo(data?.data?.userId);
       /** This method will jump to redirect Parameter location */
       if (!history) return;
       const { query } = history.location;
@@ -130,7 +100,7 @@ const Login: React.FC = () => {
           onFinish={async (values) => {
             console.log('values', values);
 
-            await handleSubmit(values as API.LoginParams);
+            // await handleSubmit(values as API.LoginParams);
             await handleLoginRocketChat(values);
           }}
         >

@@ -8,10 +8,37 @@ export const USER_API = {
   login: async ({ user, password }: { user: string; password: string }) => {
     try {
       const resp = await axios.post(`${domain}login`, { user, password });
-      console.log('Đăng nhập ', resp);
+      // console.log('Đăng nhập ', resp);
       return {
         data: resp.data,
         success: resp.data.status === 'success',
+      };
+    } catch (err) {
+      // Handle Error Here
+      console.error(err);
+      return {
+        error: err,
+      };
+    }
+  },
+  userInfo: async ({ userId }: { userId: string }) => {
+    try {
+      const resp = await request<{
+        users: any[];
+        /** Total number of contents */
+        total?: number;
+        success?: boolean;
+      }>(`${domain}users.info`, {
+        method: 'GET',
+        params: {
+          userId,
+        },
+        ...config,
+      });
+      // console.log('Get user info ', resp);
+      return {
+        data: resp.user,
+        success: resp.success,
       };
     } catch (err) {
       // Handle Error Here
