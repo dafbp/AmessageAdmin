@@ -92,7 +92,7 @@ declare type TRoom = {
   usersCount: number;
   _id: string;
 };
-export const DEFAULT_TYPES = ['p', 'c', 'd', 'teams'];
+export const DEFAULT_TYPES = ['p', 'c', 'teams'];
 
 const TableList: React.FC = () => {
   /** New window population */
@@ -131,7 +131,9 @@ const TableList: React.FC = () => {
     {
       title: '',
       dataIndex: 'avatar',
-      render: (src) => <Avatar size="small" src={src} />,
+      render: (src, room) => (
+        <Avatar size="small" src={`https://chat.altisss.vn/avatar/room/${room._id}`} />
+      ),
     },
     {
       title: 'Name',
@@ -144,7 +146,7 @@ const TableList: React.FC = () => {
               setShowDetail(true);
             }}
           >
-            {room.t === 'd' ? room.usernames.join(' x ') : dom}
+            {room?.t === 'd' ? room?.usernames?.join(' x ') : dom}
           </a>
         );
       },
