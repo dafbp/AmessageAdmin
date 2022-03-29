@@ -18,9 +18,10 @@ declare type TRoom = {
 
 export const config = {
   headers: {
-    'X-Auth-Token': '4LYNqdTA4-IoUuIP8_jTfrmBrcFpSz3myl_tM6gSDA8',
+    'X-Auth-Token': 'PYNShde9ceaSFm-E2g5PpHmdLoHsq4sHA8Ef3iK8Zsq',
     'X-User-Id': 'rwD8GRfHhDTAPXvvF',
     'Content-type': 'application/json',
+    // 'Access-Control-Allow-Origin': '*',
   },
 };
 // axios.head('https://chat.altisss.vn', config)

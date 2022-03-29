@@ -1,18 +1,16 @@
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, message, Avatar, Drawer, Checkbox } from 'antd';
-import React, { useState, useRef, useEffect } from 'react';
-import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
-import type { ProColumns, ActionType } from '@ant-design/pro-table';
-import ProTable from '@ant-design/pro-table';
 import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
-import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import ProDescriptions from '@ant-design/pro-descriptions';
+import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
+import type { ActionType, ProColumns } from '@ant-design/pro-table';
+import ProTable from '@ant-design/pro-table';
+import { Avatar, Button, Card, Checkbox, Descriptions, Divider, Drawer, message } from 'antd';
+import React, { useRef, useState } from 'react';
+import { useRequest } from 'umi';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
-import { rule, addRule, updateRule, removeRule, getListUserBroker } from './service';
 import type { TableListAccountItem, TableListPagination } from './data';
-import { useRequest, request } from 'umi';
-import { domain, config } from '@/services/api/axios';
+import { addRule, getListUserBroker, removeRule, updateRule } from './service';
+import { EditFilled } from '@ant-design/icons';
+
 /**
  * Add node
  *
@@ -138,8 +136,8 @@ const TableList: React.FC = () => {
     {
       title: 'verify',
       dataIndex: 'emails',
-      renderText: (val: []) => {
-        return String(val[0]?.verified);
+      render: (val = [], entity) => {
+        return <Checkbox defaultChecked={val[0]?.verified} disabled />;
       },
     },
     {
@@ -161,7 +159,7 @@ const TableList: React.FC = () => {
       title: 'broker',
       dataIndex: 'customFields',
       renderText: (val: string[]) => {
-        return val?.brokerId;
+        return val?.broker;
       },
     },
     {
@@ -213,14 +211,20 @@ const TableList: React.FC = () => {
         <a
           key="config"
           onClick={() => {
-            handleUpdateModalVisible(true);
+            handleModalVisible(true);
             setCurrentRow(record);
           }}
         >
-          Configure
+          Edit
         </a>,
-        <a key="subscribeAlert" onClick={undefined}>
-          Delete
+        <a
+          key="subscribeAlert"
+          onClick={() => {
+            setShowDetail(true);
+            setCurrentRow(record);
+          }}
+        >
+          Chi tiết
         </a>,
       ],
     },
@@ -298,53 +302,6 @@ const TableList: React.FC = () => {
           <Button type="primary">Batch approval</Button>
         </FooterToolbar>
       )}
-      <ModalForm
-        title="New rules"
-        width="400px"
-        visible={createModalVisible}
-        onVisibleChange={handleModalVisible}
-        onFinish={async (value) => {
-          const success = await handleAdd(value as TableListAccountItem);
-          if (success) {
-            handleModalVisible(false);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
-        }}
-      >
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: 'Rule name is required',
-            },
-          ]}
-          width="md"
-          name="name"
-        />
-        <ProFormTextArea width="md" name="desc" />
-      </ModalForm>
-      <UpdateForm
-        onSubmit={async (value) => {
-          const success = await handleUpdate(value, currentRow);
-
-          if (success) {
-            handleUpdateModalVisible(false);
-            setCurrentRow(undefined);
-
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
-        }}
-        onCancel={() => {
-          handleUpdateModalVisible(false);
-          setCurrentRow(undefined);
-        }}
-        updateModalVisible={updateModalVisible}
-        values={currentRow || {}}
-      />
 
       <Drawer
         width={600}
@@ -355,20 +312,78 @@ const TableList: React.FC = () => {
         }}
         closable={false}
       >
-        {currentRow?.name && (
-          <ProDescriptions<TableListAccountItem>
-            column={2}
-            title={currentRow?.name}
-            request={async () => ({
-              data: currentRow || {},
-            })}
-            params={{
-              id: currentRow?.name,
-            }}
-            columns={columns as ProDescriptionsItemProps<TableListAccountItem>[]}
-          />
-        )}
+        <Descriptions bordered column={1} title="Thông tin user" style={{ marginBottom: 32 }}>
+          <Descriptions.Item label="Chỉnh sửa">
+            <EditFilled
+              size={48}
+              onClick={() => {
+                setShowDetail(false);
+                handleModalVisible(true);
+              }}
+            />
+          </Descriptions.Item>
+          <Descriptions.Item label="Avatar">
+            <Avatar size="large" src={`https://chat.altisss.vn/avatar/${currentRow?.username}`} />
+          </Descriptions.Item>
+          <Descriptions.Item label="Username">{currentRow?.name}</Descriptions.Item>
+          <Descriptions.Item label="Nick name">{currentRow?.nickname}</Descriptions.Item>
+          <Descriptions.Item label="Tên">
+            {currentRow?.customFields?.account_name}
+          </Descriptions.Item>
+          <Descriptions.Item label="Email Chat">
+            {currentRow?.emails?.[0]?.address}
+          </Descriptions.Item>
+          <Descriptions.Item label="Email Trading">
+            {currentRow?.customFields?.email}
+          </Descriptions.Item>
+          <Descriptions.Item label="Phone">{currentRow?.customFields?.phone}</Descriptions.Item>
+          <Descriptions.Item label="Môi giới">{currentRow?.customFields?.broker}</Descriptions.Item>
+          <Descriptions.Item label="Số tài khoản">
+            {currentRow?.customFields?.account_no}
+          </Descriptions.Item>
+          <Descriptions.Item label="Loại tài khoản">
+            {currentRow?.customFields?.account_type_trading}
+          </Descriptions.Item>
+        </Descriptions>
+        <Divider style={{ marginBottom: 32 }} />
+        <Descriptions title="Thông tin thêm" style={{ marginBottom: 32 }} bordered>
+          <Descriptions.Item label="Số lượng user quản lý trực tiếp">101</Descriptions.Item>
+        </Descriptions>
+        <Divider style={{ marginBottom: 32 }} />
+        {/* </Card> */}
       </Drawer>
+      <ModalForm
+        title="Chỉnh sửa User"
+        width="400px"
+        visible={createModalVisible}
+        onVisibleChange={handleModalVisible}
+        onFinish={async (value) => {
+          console.log('value', value);
+
+          const success = await handleAdd(value as TableListAccountItem);
+          if (success) {
+            handleModalVisible(false);
+            if (actionRef.current) {
+              actionRef.current.reload();
+            }
+          }
+        }}
+      >
+        <Avatar size="large" src={`https://chat.altisss.vn/avatar/${currentRow?.username}`} />
+
+        <ProFormText
+          rules={[
+            {
+              required: true,
+              message: 'Nickname is required',
+            },
+          ]}
+          width="md"
+          initialValue={currentRow?.nickname}
+          name="nickname"
+          label="Nickname"
+        />
+      </ModalForm>
     </PageContainer>
   );
 };
