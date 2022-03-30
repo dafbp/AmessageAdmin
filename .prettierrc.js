@@ -1,5 +1,11 @@
-const fabric = require('@umijs/fabric');
+const fabric = require('@umijs/fabric')
 
 module.exports = {
-  ...fabric.prettier,
-};
+    ...fabric.prettier,
+    printWidth: 160,
+    tabWidth: 4,
+    jsxBracketSameLine: true,
+    jsxSingleQuote: true,
+    singleQuote: true,
+    semi: false,
+}
