@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { request } from 'umi';
 
 export const domain = 'https://chat.altisss.vn/api/v1/';
 
@@ -20,8 +21,8 @@ export const config = {
   headers: {
     'X-Auth-Token': 'PYNShde9ceaSFm-E2g5PpHmdLoHsq4sHA8Ef3iK8Zsq',
     'X-User-Id': 'rwD8GRfHhDTAPXvvF',
-    'Content-type': 'application/json',
-    // 'Access-Control-Allow-Origin': '*',
+    'X-Requested-With': 'XMLHttpRequest',
+    Accept: '*/*',
   },
 };
 // axios.head('https://chat.altisss.vn', config)
@@ -86,6 +87,22 @@ const API_MANAGE = {
       // Handle Error Here
       console.error(err);
     }
+  },
+  updateUserInfo: async (body: API.UpdateUserInfo, options?: { [key: string]: any }) => {
+    return request<API.LoginResult>(`${domain}users.update`, {
+      method: 'POST',
+      headers: config.headers,
+      data: body,
+      ...(options || {}),
+    });
+  },
+  resetAvatarToDefault: async (body: { userId: string }, options?: { [key: string]: any }) => {
+    return request<API.LoginResult>(`${domain}users.resetAvatar`, {
+      method: 'POST',
+      headers: config.headers,
+      data: body,
+      ...(options || {}),
+    });
   },
 };
 

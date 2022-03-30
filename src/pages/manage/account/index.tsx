@@ -1,50 +1,34 @@
-import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
+import { API_MANAGE } from '@/services/api/axios';
+import { IUser } from '@/types/user/user';
+import { EditFilled, LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Avatar, Button, Card, Checkbox, Descriptions, Divider, Drawer, message } from 'antd';
+import {
+  Avatar,
+  Button,
+  Checkbox,
+  Descriptions,
+  Divider,
+  Drawer,
+  message,
+  Row,
+  Typography,
+  Upload,
+} from 'antd';
 import React, { useRef, useState } from 'react';
 import { useRequest } from 'umi';
-import type { FormValueType } from './components/UpdateForm';
-import UpdateForm from './components/UpdateForm';
-import type { TableListAccountItem, TableListPagination } from './data';
-import { addRule, getListUserBroker, removeRule, updateRule } from './service';
-import { EditFilled } from '@ant-design/icons';
+import type { TableListPagination } from './data';
+import { getListUserBroker, removeRule } from './service';
+import { domain, config } from '@/services/api/axios';
 
-/**
- * Add node
- *
- * @param fields
- */
+const { Paragraph } = Typography;
 
-const handleAdd = async (fields: TableListAccountItem) => {
-  const hide = message.loading('Add');
-
+const updateUserInfo = async (body: API.UpdateUserInfo, currentRow?: IUser) => {
+  const hide = message.loading('Đang chỉnh sửa');
   try {
-    await addRule({ ...fields });
-    hide();
-    message.success('Added successfully');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Please try again!');
-    return false;
-  }
-};
-/**
- * Update node
- *
- * @param fields
- */
-
-const handleUpdate = async (fields: FormValueType, currentRow?: TableListAccountItem) => {
-  const hide = message.loading('Be configured');
-
-  try {
-    await updateRule({
-      ...currentRow,
-      ...fields,
-    });
+    await API_MANAGE.updateUserInfo(body);
     hide();
     message.success('Configure success');
     return true;
@@ -54,13 +38,26 @@ const handleUpdate = async (fields: FormValueType, currentRow?: TableListAccount
     return false;
   }
 };
+const resetAvatarToDefault = async (body: { userId: string }) => {
+  const hide = message.loading('Đang chỉnh sửa');
+  try {
+    await API_MANAGE.resetAvatarToDefault(body);
+    hide();
+    message.success('Thay đổi avatar mặc định thành công');
+    return true;
+  } catch (error) {
+    hide();
+    message.error('Thay đổi avatar mặc định thất bại');
+    return false;
+  }
+};
 /**
  * Delete node
  *
  * @param selectedRows
  */
 
-const handleRemove = async (selectedRows: TableListAccountItem[]) => {
+const handleRemove = async (selectedRows: IUser[]) => {
   const hide = message.loading('deleting');
   if (!selectedRows) return true;
 
@@ -78,6 +75,24 @@ const handleRemove = async (selectedRows: TableListAccountItem[]) => {
   }
 };
 
+function getBase64(img: any, callback: Function) {
+  const reader = new FileReader();
+  reader.addEventListener('load', () => callback(reader.result));
+  reader.readAsDataURL(img);
+}
+
+function beforeUpload(file: any) {
+  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+  if (!isJpgOrPng) {
+    message.error('You can only upload JPG/PNG file!');
+  }
+  const isLt2M = file.size / 1024 / 1024 < 2;
+  if (!isLt2M) {
+    message.error('Image must smaller than 2MB!');
+  }
+  return isJpgOrPng && isLt2M;
+}
+
 const TableList: React.FC = () => {
   /** New window population */
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
@@ -86,12 +101,15 @@ const TableList: React.FC = () => {
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<TableListAccountItem>();
-  const [selectedRowsState, setSelectedRows] = useState<TableListAccountItem[]>([]);
+  const [currentRow, setCurrentRow] = useState<IUser>();
+  const [selectedRowsState, setSelectedRows] = useState<IUser[]>([]);
   const [onlyBroker, setOnlyBroker] = useState(false);
   /** International allocation */
+  const [loadingAvatar, setLoadingAvatar] = useState(false);
+  const [avatarSrc, setAvatarSrc] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState('');
 
-  const columns: ProColumns<TableListAccountItem>[] = [
+  const columns: ProColumns<IUser>[] = [
     {
       title: '',
       dataIndex: 'avatar',
@@ -129,14 +147,14 @@ const TableList: React.FC = () => {
     {
       title: 'email',
       dataIndex: 'emails',
-      renderText: (val: []) => {
+      renderText: (val) => {
         return val[0]?.address;
       },
     },
     {
       title: 'verify',
       dataIndex: 'emails',
-      render: (val = [], entity) => {
+      renderText: (val: IUser['emails'], entity) => {
         return <Checkbox defaultChecked={val[0]?.verified} disabled />;
       },
     },
@@ -158,7 +176,7 @@ const TableList: React.FC = () => {
     {
       title: 'broker',
       dataIndex: 'customFields',
-      renderText: (val: string[]) => {
+      renderText: (val: IUser['customFields']) => {
         return val?.broker;
       },
     },
@@ -166,7 +184,7 @@ const TableList: React.FC = () => {
       title: 'phone',
       dataIndex: 'customFields',
       // valueType: 'textarea',
-      renderText: (val: string[]) => {
+      renderText: (val: IUser['customFields']) => {
         return val?.phone;
       },
     },
@@ -234,20 +252,56 @@ const TableList: React.FC = () => {
     data,
     error,
     loading,
-    run: refetchList,
-  } = useRequest((isBroker) => getListUserBroker({ role: isBroker ? 'Manager' : 'user' }), {
-    // onSuccess: (res, params) => console.log('onSuccess', res, params),
-    formatResult: (res) => res,
-  });
+    run: refetchListUser,
+  } = useRequest(
+    (isBroker?: boolean) => getListUserBroker({ role: isBroker ? 'Manager' : 'user' }),
+    {
+      // onSuccess: (res, params) => console.log('onSuccess', res, params),
+      formatResult: (res) => res,
+    },
+  );
   const listUser = data?.users;
   console.log('listUser', listUser);
 
+  const uploadButton = (
+    <div>
+      {loadingAvatar ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+
+  const handleChange = (info: any) => {
+    if (info.file.status === 'uploading') {
+      setLoadingAvatar(true);
+      return;
+    }
+    if (info.file.status === 'done') {
+      // Get this url from response in real world.
+      getBase64(
+        info.file.originFileObj,
+        (imageUrl: string) => {
+          setLoadingAvatar(false);
+          setAvatarUrl(imageUrl);
+        },
+        // this.setState({
+        //   imageUrl,
+        //   loading: false,
+        // }),
+      );
+    }
+  };
+
   return (
     <PageContainer>
-      <ProTable<TableListAccountItem, TableListPagination>
+      <ProTable<IUser, TableListPagination>
         headerTitle="List User"
-        actionRef={actionRef}
+        // actionRef={actionRef}
         rowKey="_id"
+        options={{
+          reload: false,
+          setting: false,
+          // search: true
+        }}
         search={false}
         scroll={{ x: 600 }}
         toolBarRender={() => [
@@ -255,7 +309,7 @@ const TableList: React.FC = () => {
             defaultChecked={onlyBroker}
             key="Direct"
             onChange={(val) => {
-              refetchList(val.target.checked);
+              refetchListUser(val.target.checked);
               setOnlyBroker(val.target.checked);
             }}
           >
@@ -283,23 +337,19 @@ const TableList: React.FC = () => {
                 {selectedRowsState.length}
               </a>{' '}
               item &nbsp;&nbsp;
-              <span>
-                Total number of service calls{' '}
-                {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)} 万
-              </span>
             </div>
           }
         >
           <Button
             onClick={async () => {
-              await handleRemove(selectedRowsState);
+              // await handleRemove(selectedRowsState);
               setSelectedRows([]);
-              actionRef.current?.reloadAndRest?.();
+              // actionRef.current?.reloadAndRest?.();
             }}
           >
-            batch deletion
+            Action
           </Button>
-          <Button type="primary">Batch approval</Button>
+          <Button type="primary">Approve</Button>
         </FooterToolbar>
       )}
 
@@ -325,24 +375,40 @@ const TableList: React.FC = () => {
           <Descriptions.Item label="Avatar">
             <Avatar size="large" src={`https://chat.altisss.vn/avatar/${currentRow?.username}`} />
           </Descriptions.Item>
-          <Descriptions.Item label="Username">{currentRow?.name}</Descriptions.Item>
-          <Descriptions.Item label="Nick name">{currentRow?.nickname}</Descriptions.Item>
+          <Descriptions.Item label="Username">
+            <Paragraph>{currentRow?.name}</Paragraph>
+          </Descriptions.Item>
+          <Descriptions.Item label="Nick name">
+            <Paragraph>{currentRow?.nickname}</Paragraph>
+          </Descriptions.Item>
           <Descriptions.Item label="Tên">
-            {currentRow?.customFields?.account_name}
+            <Paragraph>{currentRow?.customFields?.account_name}</Paragraph>
           </Descriptions.Item>
           <Descriptions.Item label="Email Chat">
-            {currentRow?.emails?.[0]?.address}
+            <Paragraph copyable={!!currentRow?.emails?.[0]?.address}>
+              {currentRow?.emails?.[0]?.address}
+            </Paragraph>
           </Descriptions.Item>
           <Descriptions.Item label="Email Trading">
-            {currentRow?.customFields?.email}
+            <Paragraph>{currentRow?.customFields?.email}</Paragraph>
           </Descriptions.Item>
-          <Descriptions.Item label="Phone">{currentRow?.customFields?.phone}</Descriptions.Item>
-          <Descriptions.Item label="Môi giới">{currentRow?.customFields?.broker}</Descriptions.Item>
+          <Descriptions.Item label="Phone">
+            <Paragraph copyable={!!currentRow?.customFields?.phone}>
+              {currentRow?.customFields?.phone}
+            </Paragraph>
+          </Descriptions.Item>
+          <Descriptions.Item label="Môi giới">
+            <Paragraph copyable={!!currentRow?.customFields?.broker}>
+              {currentRow?.customFields?.broker}
+            </Paragraph>
+          </Descriptions.Item>
           <Descriptions.Item label="Số tài khoản">
-            {currentRow?.customFields?.account_no}
+            <Paragraph copyable={!!currentRow?.customFields?.account_no}>
+              {currentRow?.customFields?.account_no}
+            </Paragraph>
           </Descriptions.Item>
           <Descriptions.Item label="Loại tài khoản">
-            {currentRow?.customFields?.account_type_trading}
+            <Paragraph>{currentRow?.customFields?.account_type_trading}</Paragraph>
           </Descriptions.Item>
         </Descriptions>
         <Divider style={{ marginBottom: 32 }} />
@@ -358,19 +424,54 @@ const TableList: React.FC = () => {
         visible={createModalVisible}
         onVisibleChange={handleModalVisible}
         onFinish={async (value) => {
-          console.log('value', value);
-
-          const success = await handleAdd(value as TableListAccountItem);
-          if (success) {
-            handleModalVisible(false);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
+          handleModalVisible(false);
+          const payload = {
+            userId: value.userId,
+            data: {
+              nickname: value.nickname,
+            },
+          };
+          const updateSuccess = await updateUserInfo(payload, currentRow);
+          if (!updateSuccess) {
+            message.error('Please try again!');
+          } else {
+            refetchListUser();
           }
         }}
       >
-        <Avatar size="large" src={`https://chat.altisss.vn/avatar/${currentRow?.username}`} />
+        <Row style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Avatar size={64} src={`https://chat.altisss.vn/avatar/${currentRow?.username}`} />
+        </Row>
+        <Row style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 16 }}>
+          <Button
+            onClick={async () => {
+              const updateSuccess = await resetAvatarToDefault({ userId: currentRow?._id || '' });
+              if (!updateSuccess) {
+                message.error('Please try again!');
+              } else {
+                refetchListUser();
+                setShowDetail(false);
+              }
+            }}
+          >
+            Set Default Avatar
+          </Button>
+        </Row>
+        {/* <Avatar size="default" src={`https://chat.altisss.vn/avatar/%40${currentRow?.username}`} /> */}
 
+        <ProFormText
+          rules={[
+            {
+              required: true,
+              message: 'userId is required',
+            },
+          ]}
+          width="md"
+          initialValue={currentRow?._id}
+          name="userId"
+          hidden
+          label=""
+        />
         <ProFormText
           rules={[
             {

@@ -1,16 +1,15 @@
-import { Button, message, Input, Drawer, Avatar, Checkbox } from 'antd';
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
-import type { ProColumns, ActionType } from '@ant-design/pro-table';
-import ProTable from '@ant-design/pro-table';
+import { EditFilled } from '@ant-design/icons';
 import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
-import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import ProDescriptions from '@ant-design/pro-descriptions';
+import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
+import type { ActionType, ProColumns } from '@ant-design/pro-table';
+import ProTable from '@ant-design/pro-table';
+import { Avatar, Button, Checkbox, Descriptions, Divider, Drawer, message } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { API_MANAGE } from '../../../services/api/axios';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
-import { addRule, updateRule, removeRule } from './service';
 import type { TableListItem, TableListPagination } from './data';
-import { API_MANAGE } from '../../../services/api/axios';
+import { addRule, removeRule, updateRule } from './service';
 
 /**
  * Add node
@@ -132,7 +131,7 @@ const TableList: React.FC = () => {
       title: '',
       dataIndex: 'avatar',
       render: (src, room) => (
-        <Avatar size="small" src={`https://chat.altisss.vn/avatar/room/${room._id}`} />
+        <Avatar size="small" src={`https://chat.altisss.vn/avatar/room/${room?._id}`} />
       ),
     },
     {
@@ -220,6 +219,7 @@ const TableList: React.FC = () => {
       }));
     }
   };
+  console.log('listRooms', listRooms);
 
   return (
     <PageContainer>
@@ -377,19 +377,27 @@ const TableList: React.FC = () => {
         }}
         closable={false}
       >
-        {currentRow?.name && (
-          <ProDescriptions<TableListItem>
-            column={2}
-            title={currentRow?.name}
-            request={async () => ({
-              data: currentRow || {},
-            })}
-            params={{
-              id: currentRow?.name,
-            }}
-            columns={columns as ProDescriptionsItemProps<TableListItem>[]}
-          />
-        )}
+        <Descriptions bordered column={1} title="Thông tin user" style={{ marginBottom: 32 }}>
+          <Descriptions.Item label="Chỉnh sửa">
+            <EditFilled
+              size={48}
+              onClick={() => {
+                setShowDetail(false);
+                handleModalVisible(true);
+              }}
+            />
+          </Descriptions.Item>
+          <Descriptions.Item label="Avatar">
+            <Avatar size="large" src={`https://chat.altisss.vn/avatar/${currentRow?.username}`} />
+          </Descriptions.Item>
+          <Descriptions.Item label="Room Name">{currentRow?.name}</Descriptions.Item>
+          <Descriptions.Item label="Người sở hữu">{currentRow?.u?.username}</Descriptions.Item>
+        </Descriptions>
+        <Divider style={{ marginBottom: 32 }} />
+        <Descriptions title="Thông tin thêm" style={{ marginBottom: 32 }} bordered>
+          {/* <Descriptions.Item label="Số lượng user quản lý trực tiếp">101</Descriptions.Item> */}
+        </Descriptions>
+        <Divider style={{ marginBottom: 32 }} />
       </Drawer>
     </PageContainer>
   );
