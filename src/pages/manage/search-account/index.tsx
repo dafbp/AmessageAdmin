@@ -9,7 +9,7 @@ import { Avatar, Button, Checkbox, Descriptions, Divider, Drawer, message, Row, 
 import React, { useRef, useState, useEffect } from 'react'
 import { useRequest } from 'umi'
 import type { TableListPagination } from './data'
-import { getListUserBroker, getListRoles, searchUser } from './service'
+import { getListUserBroker, getListRoles, searchUser, searchUserAdvanced } from './service'
 import { domain, config } from '@/services/api/axios'
 
 const { Paragraph } = Typography
@@ -59,7 +59,6 @@ const TableList: React.FC = () => {
     const [formEditUser] = Form.useForm()
 
     useEffect(() => {
-        console.log('currentRow', selectUserInfo)
         setCurrentRowUserRolesUpdate(selectUserInfo?.roles || [])
     }, [selectUserInfo])
 
@@ -108,6 +107,21 @@ const TableList: React.FC = () => {
             hideInTable: true,
         },
         {
+            title: 'broker',
+            dataIndex: 'customFields',
+            renderText: (val: IUser['customFields']) => {
+                return val?.broker
+            },
+        },
+        {
+            title: 'phone',
+            dataIndex: 'customFields',
+            // valueType: 'textarea',
+            renderText: (val: IUser['customFields']) => {
+                return val?.phone
+            },
+        },
+        {
             title: 'Action',
             dataIndex: 'option',
             valueType: 'option',
@@ -141,8 +155,11 @@ const TableList: React.FC = () => {
         run: refetchListUserSearch,
     } = useRequest(
         ({ searchString }: { searchString: string }) =>
-            searchUser({
-                query: searchString,
+            searchUserAdvanced({
+                isSearchBroker: true,
+                isSearchPhone: true,
+                isSearchName: true,
+                searchString,
             }),
         {
             formatResult: (res) => res,

@@ -11,6 +11,7 @@ import { useRequest } from 'umi'
 import type { TableListPagination } from './data'
 import { getListUserBroker, getListRoles } from './service'
 import { domain, config } from '@/services/api/axios'
+import { searchUserAdvanced } from '../search-account/service'
 
 const { Paragraph } = Typography
 
@@ -54,11 +55,16 @@ const TableList: React.FC = () => {
     const [currentRow, setCurrentRow] = useState<IUser>()
     const [currentRowUserRolesUpdate, setCurrentRowUserRolesUpdate] = useState<IUser['roles']>([])
     const [selectedRowsState, setSelectedRows] = useState<IUser[]>([])
-    const [onlyBroker, setOnlyBroker] = useState(false)
+    const [onlyBroker, setOnlyBroker] = useState(true)
 
     useEffect(() => {
         setCurrentRowUserRolesUpdate(currentRow?.roles || [])
     }, [currentRow?.roles])
+    useEffect(() => {
+        if (currentRow?.customFields?.account_no && currentRow?.roles?.includes('brokertest')) {
+            refetchListUserSearchByBrokerId({ searchString: currentRow?.customFields?.account_no })
+        }
+    }, [currentRow])
 
     const columns: ProColumns<IUser>[] = [
         {
@@ -106,21 +112,6 @@ const TableList: React.FC = () => {
             renderText: (val: IUser['emails'], entity) => {
                 return <Checkbox defaultChecked={val[0]?.verified} disabled />
             },
-        },
-        {
-            title: 'FosId',
-            dataIndex: 'FosId',
-            hideInTable: true,
-        },
-        {
-            title: 'TradingAccount',
-            dataIndex: 'TradingAccount',
-            hideInTable: true,
-        },
-        {
-            title: 'bio',
-            dataIndex: 'bio',
-            hideInTable: true,
         },
         {
             title: 'broker',
@@ -202,7 +193,7 @@ const TableList: React.FC = () => {
         error,
         loading,
         run: refetchListUser,
-    } = useRequest((isBroker?: boolean) => getListUserBroker({ role: isBroker ? 'Manager' : 'user' }), {
+    } = useRequest((isBroker?: boolean) => getListUserBroker({ role: isBroker ? 'brokertest' : 'user' }), {
         formatResult: (res) => res,
     })
     const listUser = data?.users || []
@@ -216,6 +207,24 @@ const TableList: React.FC = () => {
     })
     const listRoles = dataRoles?.roles || []
     console.log('listUser', listUser, dataRoles)
+
+    const {
+        data: dataUserSearch,
+        error: errorSearch,
+        loading: loadingUserSearch,
+        run: refetchListUserSearchByBrokerId,
+    } = useRequest(
+        ({ searchString }: { searchString: string }) =>
+            searchUserAdvanced({
+                isSearchBroker: true,
+                searchString,
+            }),
+        {
+            formatResult: (res) => res,
+        },
+    )
+    const listUserSearchByBrokerId = dataUserSearch?.users || []
+    console.log('listUserSearchByBrokerId', listUserSearchByBrokerId)
 
     return (
         <PageContainer>
@@ -344,10 +353,35 @@ const TableList: React.FC = () => {
                 </Descriptions>
                 <Divider style={{ marginBottom: 32 }} />
                 <Descriptions title='Thông tin thêm' style={{ marginBottom: 32 }} bordered>
-                    <Descriptions.Item label='Số lượng user quản lý trực tiếp'>101</Descriptions.Item>
+                    <Descriptions.Item label='Số lượng user quản lý trực tiếp'>{listUserSearchByBrokerId?.length}</Descriptions.Item>
                 </Descriptions>
                 <Divider style={{ marginBottom: 32 }} />
-                {/* </Card> */}
+                <ProTable<IUser, TableListPagination>
+                    headerTitle='Danh sách user trực thuộc'
+                    rowKey='_id'
+                    loading={loading}
+                    options={{
+                        reload: false,
+                        setting: false,
+                    }}
+                    search={false}
+                    toolBarRender={() => []}
+                    toolbar={{
+                        actions: [],
+                    }}
+                    dataSource={listUserSearchByBrokerId}
+                    columns={[
+                        {
+                            title: '',
+                            dataIndex: 'avatar',
+                            render: (src, row) => <Avatar size='small' src={`https://chat.altisss.vn/avatar/${row.username}`} />,
+                        },
+                        {
+                            title: 'username',
+                            dataIndex: 'username',
+                        },
+                    ]}
+                />
             </Drawer>
             <ModalForm
                 title='Chỉnh sửa User'
