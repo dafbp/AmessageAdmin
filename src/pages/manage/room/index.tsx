@@ -11,42 +11,13 @@ import UpdateForm from './components/UpdateForm'
 import type { TableListPagination } from './data'
 import { addRule, removeRule, updateRule } from './service'
 import type { IRoomInfo } from '@/types/room/room'
-/**
- * Add node
- *
- * @param fields
- */
 
-const handleAdd = async (fields: IRoomInfo) => {
-    const hide = message.loading('Add')
-
+const updateRoomInfo = async (body: API.UpdateRoomInfo, currentRow?: IRoomInfo) => {
+    const hide = message.loading('Đang chỉnh sửa user')
     try {
-        await addRule({ ...fields })
+        await API_MANAGE.updateRoomInfo(body)
         hide()
-        message.success('Added successfully')
-        return true
-    } catch (error) {
-        hide()
-        message.error('Please try again!')
-        return false
-    }
-}
-/**
- * Update node
- *
- * @param fields
- */
-
-const handleUpdate = async (fields: FormValueType, currentRow?: IRoomInfo) => {
-    const hide = message.loading('Be configured')
-
-    try {
-        await updateRule({
-            ...currentRow,
-            ...fields,
-        })
-        hide()
-        message.success('Configure success')
+        message.success('Chỉnh sửa thông tin room thành công')
         return true
     } catch (error) {
         hide()
@@ -54,43 +25,7 @@ const handleUpdate = async (fields: FormValueType, currentRow?: IRoomInfo) => {
         return false
     }
 }
-/**
- * Delete node
- *
- * @param selectedRows
- */
 
-const handleRemove = async (selectedRows: IRoomInfo[]) => {
-    const hide = message.loading('deleting')
-    if (!selectedRows) return true
-
-    try {
-        await removeRule({
-            key: selectedRows.map((row) => row.key),
-        })
-        hide()
-        message.success('Delete success, will be refreshed')
-        return true
-    } catch (error) {
-        hide()
-        message.error('Delete failed, please try again')
-        return false
-    }
-}
-
-declare type TRoom = {
-    default: boolean
-    fname: string
-    msgs: number
-    name: string
-    ro: boolean
-    t: 'p' | 'c' | 'd' | 'teams'
-    teamId: string
-    teamMain: boolean
-    u: { _id: string; username: string }
-    usersCount: number
-    _id: string
-}
 export const DEFAULT_TYPES = ['p', 'c', 'teams']
 
 const TableList: React.FC = () => {
@@ -305,9 +240,9 @@ const TableList: React.FC = () => {
                 >
                     <Button
                         onClick={async () => {
-                            await handleRemove(selectedRowsState)
+                            // await handleRemove(selectedRowsState)
                             setSelectedRows([])
-                            actionRef.current?.reloadAndRest?.()
+                            // actionRef.current?.reloadAndRest?.()
                         }}
                     >
                         batch deletion
@@ -316,7 +251,7 @@ const TableList: React.FC = () => {
                 </FooterToolbar>
             )}
             <ModalForm
-                title='New rules'
+                title='Chỉnh sửa thông tin room'
                 width='400px'
                 visible={createModalVisible}
                 onVisibleChange={handleModalVisible}
@@ -342,26 +277,6 @@ const TableList: React.FC = () => {
                 />
                 <ProFormTextArea width='md' name='desc' />
             </ModalForm>
-            <UpdateForm
-                onSubmit={async (value) => {
-                    const success = await handleUpdate(value, currentRow)
-
-                    if (success) {
-                        handleUpdateModalVisible(false)
-                        setCurrentRow(undefined)
-
-                        if (actionRef.current) {
-                            actionRef.current.reload()
-                        }
-                    }
-                }}
-                onCancel={() => {
-                    handleUpdateModalVisible(false)
-                    setCurrentRow(undefined)
-                }}
-                updateModalVisible={updateModalVisible}
-                values={currentRow || {}}
-            />
 
             <Drawer
                 width={600}
@@ -383,7 +298,7 @@ const TableList: React.FC = () => {
                         />
                     </Descriptions.Item>
                     <Descriptions.Item label='Avatar'>
-                        <Avatar size='large' src={`https://chat.altisss.vn/avatar/${currentRowDetails?.username}`} />
+                        <Avatar size='large' src={`https://chat.altisss.vn/avatar/${currentRowDetails?._id}`} />
                     </Descriptions.Item>
                     <Descriptions.Item label='Room Name'>{currentRowDetails?.name}</Descriptions.Item>
                     <Descriptions.Item label='Người sở hữu'>{currentRowDetails?.u?.username}</Descriptions.Item>

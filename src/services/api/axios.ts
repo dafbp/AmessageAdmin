@@ -86,8 +86,16 @@ export const API_MANAGE = {
             console.error(err)
         }
     },
+    updateRoomInfo: async (body: API.UpdateRoomInfo, options?: { [key: string]: any }) => {
+        return request<API.CommonResponse>(`${domain}users.update`, {
+            method: 'POST',
+            headers: config.headers,
+            data: body,
+            ...(options || {}),
+        })
+    },
     updateUserInfo: async (body: API.UpdateUserInfo, options?: { [key: string]: any }) => {
-        return request<API.LoginResult>(`${domain}users.update`, {
+        return request<API.CommonResponse>(`${domain}users.update`, {
             method: 'POST',
             headers: config.headers,
             data: body,
@@ -95,7 +103,7 @@ export const API_MANAGE = {
         })
     },
     resetAvatarToDefault: async (body: { userId: string }, options?: { [key: string]: any }) => {
-        return request<API.LoginResult>(`${domain}users.resetAvatar`, {
+        return request<API.CommonResponse>(`${domain}users.resetAvatar`, {
             method: 'POST',
             headers: config.headers,
             data: body,

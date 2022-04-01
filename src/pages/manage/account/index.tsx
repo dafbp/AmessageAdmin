@@ -15,7 +15,7 @@ import { domain, config } from '@/services/api/axios'
 const { Paragraph } = Typography
 
 const updateUserInfo = async (body: API.UpdateUserInfo, currentRow?: IUser) => {
-    const hide = message.loading('Đang chỉnh sửa')
+    const hide = message.loading('Đang chỉnh sửa user')
     try {
         await API_MANAGE.updateUserInfo(body)
         hide()
