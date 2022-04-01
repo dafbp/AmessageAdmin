@@ -27,7 +27,7 @@ export const config = {
 }
 // axios.head('https://chat.altisss.vn', config)
 
-const API_CHAT = {
+export const API_CHAT = {
     postMessage: async (roomId: string, text: string) => {
         try {
             const resp = await axios.post(
@@ -46,7 +46,7 @@ const API_CHAT = {
     },
 }
 
-const API_MANAGE = {
+export const API_MANAGE = {
     // getAllRoom: async (types: string[], text: string, current: number, itemsPerPage: number ): Promise<any> => {
     getAllRoom: async ({ types, text, current, itemsPerPage }: { types: string[]; text: string; current: number; itemsPerPage: number }): Promise<any> => {
         try {
@@ -63,6 +63,23 @@ const API_MANAGE = {
                 data: resp.data.rooms,
                 success: resp.data.success,
                 number: resp.data.total,
+            }
+        } catch (err) {
+            // Handle Error Here
+            console.error(err)
+        }
+    },
+    getRoomInfoById: async ({ rid }: { rid: string | undefined }): Promise<any> => {
+        try {
+            const resp = await axios.get(`${domain}rooms.adminRooms.getRoom`, {
+                params: {
+                    rid,
+                },
+                headers: config.headers,
+            })
+            return {
+                data: resp.data.data,
+                success: resp.data.success,
             }
         } catch (err) {
             // Handle Error Here
@@ -86,5 +103,3 @@ const API_MANAGE = {
         })
     },
 }
-
-export { API_CHAT, API_MANAGE }

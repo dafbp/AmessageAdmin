@@ -1,5 +1,5 @@
 import { API_MANAGE } from '@/services/api/axios'
-import { IUser } from '@/types/user/user'
+import type { IUser } from '@/types/user/user'
 import { EditFilled, LoadingOutlined, PlusOutlined } from '@ant-design/icons'
 import { ModalForm, ProFormText, ProFormSelect } from '@ant-design/pro-form'
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout'
@@ -232,18 +232,30 @@ const TableList: React.FC = () => {
                 }}
                 search={false}
                 scroll={{ x: 600 }}
-                toolBarRender={() => [
-                    <Checkbox
-                        defaultChecked={onlyBroker}
-                        key='Direct'
-                        onChange={(val) => {
-                            refetchListUser(val.target.checked)
-                            setOnlyBroker(val.target.checked)
-                        }}
-                    >
-                        Only Broker
-                    </Checkbox>,
-                ]}
+                toolBarRender={() => []}
+                toolbar={{
+                    search: {
+                        title: 'Nhập user name hoặc broker',
+                        onSearch: (value) => {
+                            // setParams((prev: any) => ({
+                            //     ...prev,
+                            //     text: value,
+                            // }))
+                        },
+                    },
+                    actions: [
+                        <Checkbox
+                            defaultChecked={onlyBroker}
+                            key='Direct'
+                            onChange={(val) => {
+                                refetchListUser(val.target.checked)
+                                setOnlyBroker(val.target.checked)
+                            }}
+                        >
+                            Only Broker
+                        </Checkbox>,
+                    ],
+                }}
                 dataSource={listUser}
                 columns={columns}
                 rowSelection={{
