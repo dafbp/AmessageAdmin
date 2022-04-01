@@ -86,6 +86,23 @@ export const API_MANAGE = {
             console.error(err)
         }
     },
+    getUserInfoById: async ({ userId }: { userId: string | undefined }): Promise<any> => {
+        try {
+            const resp = await axios.get(`${domain}users.info`, {
+                params: {
+                    userId,
+                },
+                headers: config.headers,
+            })
+            return {
+                data: resp.data.user,
+                success: resp.data.success,
+            }
+        } catch (err) {
+            // Handle Error Here
+            console.error(err)
+        }
+    },
     updateRoomInfo: async (body: API.UpdateRoomInfo, options?: { [key: string]: any }) => {
         return request<API.CommonResponse>(`${domain}users.update`, {
             method: 'POST',

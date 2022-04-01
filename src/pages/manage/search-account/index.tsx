@@ -5,7 +5,7 @@ import { ModalForm, ProFormText, ProFormSelect } from '@ant-design/pro-form'
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout'
 import type { ActionType, ProColumns } from '@ant-design/pro-table'
 import ProTable from '@ant-design/pro-table'
-import { Avatar, Button, Checkbox, Descriptions, Divider, Drawer, message, Row, Typography, Upload, Select } from 'antd'
+import { Avatar, Button, Checkbox, Descriptions, Divider, Drawer, message, Row, Typography, Upload, Select, Form } from 'antd'
 import React, { useRef, useState, useEffect } from 'react'
 import { useRequest } from 'umi'
 import type { TableListPagination } from './data'
@@ -54,11 +54,31 @@ const TableList: React.FC = () => {
     const [currentRow, setCurrentRow] = useState<IUser>()
     const [currentRowUserRolesUpdate, setCurrentRowUserRolesUpdate] = useState<IUser['roles']>([])
     const [selectedRowsState, setSelectedRows] = useState<IUser[]>([])
-    const [onlyBroker, setOnlyBroker] = useState(false)
+    const [selectUserInfo, setSelectUserInfo] = useState<IUser>()
+
+    const [formEditUser] = Form.useForm()
 
     useEffect(() => {
-        setCurrentRowUserRolesUpdate(currentRow?.roles || [])
-    }, [currentRow?.roles])
+        console.log('currentRow', selectUserInfo)
+        setCurrentRowUserRolesUpdate(selectUserInfo?.roles || [])
+    }, [selectUserInfo])
+
+    useEffect(() => {
+        if (currentRow?._id) {
+            getUserInfoByIdAsync()
+        }
+    }, [currentRow])
+
+    const getUserInfoByIdAsync = async () => {
+        const { data, success } = await API_MANAGE.getUserInfoById({ userId: currentRow?._id })
+        if (success) {
+            formEditUser.resetFields()
+            setSelectUserInfo(data)
+        } else {
+            formEditUser.resetFields()
+            setSelectUserInfo(undefined)
+        }
+    }
 
     const columns: ProColumns<IUser>[] = [
         {
@@ -83,92 +103,9 @@ const TableList: React.FC = () => {
             },
         },
         {
-            title: 'nickname',
-            dataIndex: 'nickname',
-            valueType: 'textarea',
-            hideInTable: true,
-        },
-        {
             title: 'username',
             dataIndex: 'username',
             hideInTable: true,
-        },
-        {
-            title: 'email',
-            dataIndex: 'emails',
-            renderText: (val) => {
-                return val[0]?.address
-            },
-        },
-        {
-            title: 'verify',
-            dataIndex: 'emails',
-            renderText: (val: IUser['emails'], entity) => {
-                return <Checkbox defaultChecked={val[0]?.verified} disabled />
-            },
-        },
-        {
-            title: 'FosId',
-            dataIndex: 'FosId',
-            hideInTable: true,
-        },
-        {
-            title: 'TradingAccount',
-            dataIndex: 'TradingAccount',
-            hideInTable: true,
-        },
-        {
-            title: 'bio',
-            dataIndex: 'bio',
-            hideInTable: true,
-        },
-        {
-            title: 'broker',
-            dataIndex: 'customFields',
-            renderText: (val: IUser['customFields']) => {
-                return val?.broker
-            },
-        },
-        {
-            title: 'phone',
-            dataIndex: 'customFields',
-            // valueType: 'textarea',
-            renderText: (val: IUser['customFields']) => {
-                return val?.phone
-            },
-        },
-        {
-            title: 'roles',
-            dataIndex: 'roles',
-            sorter: true,
-            hideInForm: true,
-            renderText: (val: string[]) => val?.join(', '),
-        },
-        {
-            title: 'status',
-            dataIndex: 'status',
-            // hideInForm: true,
-            valueEnum: {
-                0: {
-                    text: 'offline',
-                    status: 'Default',
-                    color: 'primary',
-                },
-                1: {
-                    text: 'Waiting',
-                    status: 'Processing',
-                    color: 'orange',
-                },
-                2: {
-                    text: 'Online',
-                    status: 'Success',
-                    color: 'orange',
-                },
-                3: {
-                    text: 'Do not Disturb',
-                    status: 'Error',
-                },
-            },
         },
         {
             title: 'Action',
@@ -198,15 +135,22 @@ const TableList: React.FC = () => {
     ]
 
     const {
-        data,
-        error,
-        loading,
-        run: refetchListUser,
-    } = useRequest((isBroker?: boolean) => getListUserBroker({ role: isBroker ? 'Manager' : 'user' }), {
-        formatResult: (res) => res,
-    })
-    const listUser = data?.users || []
-
+        data: dataUserSearch,
+        error: errorSearch,
+        loading: loadingUserSearch,
+        run: refetchListUserSearch,
+    } = useRequest(
+        ({ searchString }: { searchString: string }) =>
+            searchUser({
+                query: searchString,
+            }),
+        {
+            formatResult: (res) => res,
+        },
+    )
+    const listUserSearch = dataUserSearch?.users || []
+    console.log('dataUserSearch', dataUserSearch)
+    // -----------
     const {
         data: dataRoles,
         loading: loadingGetRoles,
@@ -216,36 +160,13 @@ const TableList: React.FC = () => {
     })
     const listRoles = dataRoles?.roles || []
 
-    const {
-        data: dataUserSearch,
-        error: errorSearch,
-        loading: loadingUserSearch,
-        run: refetchListUserSearch,
-    } = useRequest(
-        ({ searchString }: { searchString: string }) =>
-            searchUser({
-                query: {
-                    text: searchString,
-                    type: 'users',
-                    workspace: 'all',
-                },
-            }),
-        {
-            formatResult: (res) => res,
-        },
-    )
-    // const dataUserSearch = dataRoles || []
-    console.log('dataUserSearch', dataUserSearch)
-
-    console.log('listUser', listUser, dataRoles)
-
     return (
         <PageContainer>
             <ProTable<IUser, TableListPagination>
-                headerTitle='List User'
+                headerTitle='Tìm kiếm user theo broker, số điện thoại'
                 actionRef={actionRef}
                 rowKey='_id'
-                loading={loading}
+                loading={loadingUserSearch}
                 options={{
                     reload: false,
                     setting: false,
@@ -255,30 +176,14 @@ const TableList: React.FC = () => {
                 toolBarRender={() => []}
                 toolbar={{
                     search: {
-                        title: 'Nhập user name hoặc broker',
+                        placeholder: 'Tìm kiếm user theo broker, số điện thoại',
+                        title: 'Tìm kiếm user theo broker, số điện thoại',
                         onSearch: (value) => {
-                            console.log('value', value)
                             refetchListUserSearch({ searchString: value })
-                            // setParams((prev: any) => ({
-                            //     ...prev,
-                            //     text: value,
-                            // }))
                         },
                     },
-                    actions: [
-                        <Checkbox
-                            defaultChecked={onlyBroker}
-                            key='Direct'
-                            onChange={(val) => {
-                                refetchListUser(val.target.checked)
-                                setOnlyBroker(val.target.checked)
-                            }}
-                        >
-                            Only Broker
-                        </Checkbox>,
-                    ],
                 }}
-                dataSource={listUser}
+                dataSource={listUserSearch}
                 columns={columns}
                 rowSelection={{
                     onChange: (_, selectedRows) => {
@@ -335,16 +240,16 @@ const TableList: React.FC = () => {
                         />
                     </Descriptions.Item>
                     <Descriptions.Item label='Avatar'>
-                        <Avatar size='large' src={`https://chat.altisss.vn/avatar/${currentRow?.username}`} />
+                        <Avatar size='large' src={`https://chat.altisss.vn/avatar/${selectUserInfo?.username}`} />
                     </Descriptions.Item>
                     <Descriptions.Item label='Username'>
-                        <Paragraph>{currentRow?.name}</Paragraph>
+                        <Paragraph>{selectUserInfo?.name}</Paragraph>
                     </Descriptions.Item>
                     <Descriptions.Item label='Nick name'>
-                        <Paragraph>{currentRow?.nickname}</Paragraph>
+                        <Paragraph>{selectUserInfo?.nickname}</Paragraph>
                     </Descriptions.Item>
                     <Descriptions.Item label='Tên'>
-                        <Paragraph>{currentRow?.customFields?.account_name}</Paragraph>
+                        <Paragraph>{selectUserInfo?.customFields?.account_name}</Paragraph>
                     </Descriptions.Item>
                     <Descriptions.Item label='Quyền'>
                         <Select
@@ -352,27 +257,27 @@ const TableList: React.FC = () => {
                             style={{ width: '100%' }}
                             placeholder='Selected roles'
                             disabled
-                            value={currentRow?.roles || []}
+                            value={selectUserInfo?.roles || []}
                             optionLabelProp='label'
                         />
                     </Descriptions.Item>
                     <Descriptions.Item label='Email Chat'>
-                        <Paragraph copyable={!!currentRow?.emails?.[0]?.address}>{currentRow?.emails?.[0]?.address}</Paragraph>
+                        <Paragraph copyable={!!selectUserInfo?.emails?.[0]?.address}>{selectUserInfo?.emails?.[0]?.address}</Paragraph>
                     </Descriptions.Item>
                     <Descriptions.Item label='Email Trading'>
-                        <Paragraph>{currentRow?.customFields?.email}</Paragraph>
+                        <Paragraph>{selectUserInfo?.customFields?.email}</Paragraph>
                     </Descriptions.Item>
                     <Descriptions.Item label='Phone'>
-                        <Paragraph copyable={!!currentRow?.customFields?.phone}>{currentRow?.customFields?.phone}</Paragraph>
+                        <Paragraph copyable={!!selectUserInfo?.customFields?.phone}>{selectUserInfo?.customFields?.phone}</Paragraph>
                     </Descriptions.Item>
                     <Descriptions.Item label='Môi giới'>
-                        <Paragraph copyable={!!currentRow?.customFields?.broker}>{currentRow?.customFields?.broker}</Paragraph>
+                        <Paragraph copyable={!!selectUserInfo?.customFields?.broker}>{selectUserInfo?.customFields?.broker}</Paragraph>
                     </Descriptions.Item>
                     <Descriptions.Item label='Số tài khoản'>
-                        <Paragraph copyable={!!currentRow?.customFields?.account_no}>{currentRow?.customFields?.account_no}</Paragraph>
+                        <Paragraph copyable={!!selectUserInfo?.customFields?.account_no}>{selectUserInfo?.customFields?.account_no}</Paragraph>
                     </Descriptions.Item>
                     <Descriptions.Item label='Loại tài khoản'>
-                        <Paragraph>{currentRow?.customFields?.account_type_trading}</Paragraph>
+                        <Paragraph>{selectUserInfo?.customFields?.account_type_trading}</Paragraph>
                     </Descriptions.Item>
                 </Descriptions>
                 <Divider style={{ marginBottom: 32 }} />
@@ -385,6 +290,7 @@ const TableList: React.FC = () => {
             <ModalForm
                 title='Chỉnh sửa User'
                 width='400px'
+                form={formEditUser}
                 visible={updateModalVisible}
                 onVisibleChange={handleUpdateModalVisible}
                 onFinish={async (value) => {
@@ -396,25 +302,25 @@ const TableList: React.FC = () => {
                             roles: currentRowUserRolesUpdate,
                         },
                     }
-                    const updateSuccess = await updateUserInfo(payload, currentRow)
+                    const updateSuccess = await updateUserInfo(payload, selectUserInfo)
                     if (!updateSuccess) {
                         message.error('Please try again!')
                     } else {
-                        refetchListUser()
+                        // refetchListUser()
                     }
                 }}
             >
                 <Row style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <Avatar size={64} src={`https://chat.altisss.vn/avatar/${currentRow?.username}`} />
+                    <Avatar size={64} src={`https://chat.altisss.vn/avatar/${selectUserInfo?.username}`} />
                 </Row>
                 <Row style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 16 }}>
                     <Button
                         onClick={async () => {
-                            const updateSuccess = await resetAvatarToDefault({ userId: currentRow?._id || '' })
+                            const updateSuccess = await resetAvatarToDefault({ userId: selectUserInfo?._id || '' })
                             if (!updateSuccess) {
                                 message.error('Please try again!')
                             } else {
-                                refetchListUser()
+                                // refetchListUser()
                                 setShowDetail(false)
                             }
                         }}
@@ -422,7 +328,6 @@ const TableList: React.FC = () => {
                         Set Default Avatar
                     </Button>
                 </Row>
-                {/* <Avatar size="default" src={`https://chat.altisss.vn/avatar/%40${currentRow?.username}`} /> */}
 
                 <ProFormText
                     rules={[
@@ -432,7 +337,7 @@ const TableList: React.FC = () => {
                         },
                     ]}
                     width='md'
-                    initialValue={currentRow?._id}
+                    initialValue={selectUserInfo?._id}
                     name='userId'
                     hidden
                     label=''
@@ -445,7 +350,7 @@ const TableList: React.FC = () => {
                         },
                     ]}
                     width='md'
-                    initialValue={currentRow?.nickname}
+                    initialValue={selectUserInfo?.nickname}
                     name='nickname'
                     label='Nickname'
                 />

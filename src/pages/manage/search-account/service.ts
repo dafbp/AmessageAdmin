@@ -26,20 +26,17 @@ export async function getListUserBroker(
 
 export async function searchUser(
     params: {
-        query: {
-            text: string
-            type: 'users' | string
-            workspace: 'local' | string
-        }
+        query: string
     },
     options?: { [key: string]: any },
 ) {
     const result = request<{
         users: any[]
+        room: any[]
         /** Total number of contents */
         total?: number
         success?: boolean
-    }>(`${domain}directory`, {
+    }>(`${domain}spotlight`, {
         method: 'GET',
         params: {
             ...params,

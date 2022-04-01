@@ -100,7 +100,7 @@ export default defineConfig({
             name: 'Manage',
             routes: [
                 {
-                    name: 'Search Account',
+                    name: 'Search_Account',
                     icon: 'smile',
                     path: '/manage/search-account',
                     component: 'manage/search-account',
