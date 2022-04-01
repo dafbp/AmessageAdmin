@@ -6,10 +6,7 @@ import ProTable from '@ant-design/pro-table'
 import { Avatar, Button, Checkbox, Descriptions, Divider, Drawer, message, Switch, Tooltip } from 'antd'
 import React, { useEffect, useRef, useState } from 'react'
 import { API_MANAGE } from '../../../services/api/axios'
-import type { FormValueType } from './components/UpdateForm'
-import UpdateForm from './components/UpdateForm'
 import type { TableListPagination } from './data'
-import { addRule, removeRule, updateRule } from './service'
 import type { IRoomInfo } from '@/types/room/room'
 
 const updateRoomInfo = async (body: API.UpdateRoomInfo, currentRow?: IRoomInfo) => {

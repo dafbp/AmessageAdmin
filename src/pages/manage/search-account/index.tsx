@@ -9,7 +9,7 @@ import { Avatar, Button, Checkbox, Descriptions, Divider, Drawer, message, Row, 
 import React, { useRef, useState, useEffect } from 'react'
 import { useRequest } from 'umi'
 import type { TableListPagination } from './data'
-import { getListUserBroker, getListRoles } from './service'
+import { getListUserBroker, getListRoles, searchUser } from './service'
 import { domain, config } from '@/services/api/axios'
 
 const { Paragraph } = Typography
@@ -215,6 +215,28 @@ const TableList: React.FC = () => {
         formatResult: (res) => res,
     })
     const listRoles = dataRoles?.roles || []
+
+    const {
+        data: dataUserSearch,
+        error: errorSearch,
+        loading: loadingUserSearch,
+        run: refetchListUserSearch,
+    } = useRequest(
+        ({ searchString }: { searchString: string }) =>
+            searchUser({
+                query: {
+                    text: searchString,
+                    type: 'users',
+                    workspace: 'all',
+                },
+            }),
+        {
+            formatResult: (res) => res,
+        },
+    )
+    // const dataUserSearch = dataRoles || []
+    console.log('dataUserSearch', dataUserSearch)
+
     console.log('listUser', listUser, dataRoles)
 
     return (
@@ -232,6 +254,17 @@ const TableList: React.FC = () => {
                 scroll={{ x: 600 }}
                 toolBarRender={() => []}
                 toolbar={{
+                    search: {
+                        title: 'Nhập user name hoặc broker',
+                        onSearch: (value) => {
+                            console.log('value', value)
+                            refetchListUserSearch({ searchString: value })
+                            // setParams((prev: any) => ({
+                            //     ...prev,
+                            //     text: value,
+                            // }))
+                        },
+                    },
                     actions: [
                         <Checkbox
                             defaultChecked={onlyBroker}
