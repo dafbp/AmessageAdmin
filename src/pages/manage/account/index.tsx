@@ -380,6 +380,13 @@ const TableList: React.FC = () => {
                             title: 'username',
                             dataIndex: 'username',
                         },
+                        {
+                            title: 'phone',
+                            dataIndex: 'customFields',
+                            renderText: (val: IUser['customFields']) => {
+                                return val?.phone
+                            },
+                        },
                     ]}
                 />
             </Drawer>
