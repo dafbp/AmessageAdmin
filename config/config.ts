@@ -69,6 +69,7 @@ export default defineConfig({
             path: '/dashboard',
             name: 'dashboard',
             icon: 'dashboard',
+            access: 'adminRouteFilter',
             routes: [
                 {
                     path: '/dashboard',
@@ -123,6 +124,7 @@ export default defineConfig({
             path: '/form',
             icon: 'form',
             name: 'form',
+            access: 'devRouteFilter',
             routes: [
                 {
                     path: '/form',
@@ -152,6 +154,7 @@ export default defineConfig({
             path: '/list',
             icon: 'table',
             name: 'list',
+            access: 'devRouteFilter',
             routes: [
                 {
                     path: '/list/search',
@@ -210,6 +213,7 @@ export default defineConfig({
             path: '/profile',
             name: 'profile',
             icon: 'profile',
+            access: 'devRouteFilter',
             routes: [
                 {
                     path: '/profile',
@@ -233,6 +237,7 @@ export default defineConfig({
             name: 'result',
             icon: 'CheckCircleOutlined',
             path: '/result',
+            access: 'devRouteFilter',
             routes: [
                 {
                     path: '/result',
@@ -256,6 +261,7 @@ export default defineConfig({
             name: 'exception',
             icon: 'warning',
             path: '/exception',
+            access: 'devRouteFilter',
             routes: [
                 {
                     path: '/exception',
@@ -285,6 +291,7 @@ export default defineConfig({
             name: 'account',
             icon: 'user',
             path: '/account',
+            access: 'devRouteFilter',
             routes: [
                 {
                     path: '/account',
@@ -308,6 +315,7 @@ export default defineConfig({
             name: 'editor',
             icon: 'highlight',
             path: '/editor',
+            access: 'devRouteFilter',
             routes: [
                 {
                     path: '/editor',
