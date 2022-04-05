@@ -1,31 +1,24 @@
 import axios from 'axios'
 import { request } from 'umi'
+import { getDataFromLocalStorage } from '@/localData'
 
 export const domain = 'https://chat.altisss.vn/api/v1/'
+export const host = 'https://chat.altisss.vn/api/v1/'
 
-declare type TRoom = {
-    default: boolean
-    fname: string
-    msgs: number
-    name: string
-    ro: boolean
-    t: 'p' | 'c' | 'd' | 'teams'
-    teamId: string
-    teamMain: boolean
-    u: { _id: string; username: string }
-    usersCount: number
-    _id: string
+export const getConfigAsync = async () => {
+    const X_User_Id = await getDataFromLocalStorage({ key: 'userId' })
+    const X_Auth_Token = await getDataFromLocalStorage({ key: 'loginToken' })
+    return {
+        headers: {
+            'X-Auth-Token': X_Auth_Token,
+            'X-User-Id': X_User_Id,
+            'X-Requested-With': 'XMLHttpRequest',
+            Accept: '*/*',
+        },
+    }
 }
 
-export const config = {
-    headers: {
-        'X-Auth-Token': 'PYNShde9ceaSFm-E2g5PpHmdLoHsq4sHA8Ef3iK8Zsq',
-        'X-User-Id': 'rwD8GRfHhDTAPXvvF',
-        'X-Requested-With': 'XMLHttpRequest',
-        Accept: '*/*',
-    },
-}
-// axios.head('https://chat.altisss.vn', config)
+export const config = await getConfigAsync()
 
 export const API_CHAT = {
     postMessage: async (roomId: string, text: string) => {

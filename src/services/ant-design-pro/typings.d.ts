@@ -1,6 +1,3 @@
-// @ts-ignore
-/* eslint-disable */
-
 declare namespace API {
     type CommonResponse = {
         data: any
@@ -25,6 +22,79 @@ declare namespace API {
         featured: boolean
         roomDescription: string
         roomAnnouncement: string
+    }
+    interface ICurrentUserInfo {
+        _id: string
+        createdAt: string
+        services: Services
+        emails: Email2[]
+        type: string
+        status: string
+        active: boolean
+        roles: string[]
+        name: string
+        lastLogin: string
+        statusConnection: string
+        utcOffset: number
+        username: string
+        statusText: string
+        requirePasswordChange: boolean
+        customFields: CustomFields
+        avatarETag: string
+        nickname: string
+        canViewAllInfo: boolean
+    }
+
+    interface CustomFields {
+        phone: string
+        account_name: string
+        account_no: string
+        account_type_trading: string
+        broker: string
+        email: string
+    }
+
+    interface Email2 {
+        address: string
+        verified: boolean
+    }
+
+    interface Services {
+        password: Password
+        email: Email
+        resume: Resume
+        cloud: Cloud
+        passwordHistory: string[]
+    }
+
+    interface Cloud {
+        accessToken: string
+        expiresAt: string
+        scope: string
+        tokenType: string
+        refreshToken: string
+    }
+
+    interface Resume {
+        loginTokens: LoginToken[]
+    }
+
+    interface LoginToken {
+        hashedToken: string
+        type?: string
+        createdAt?: string
+        lastTokenPart?: string
+        name?: string
+        bypassTwoFactor?: boolean
+        when?: string
+    }
+
+    interface Email {
+        verificationTokens: any[]
+    }
+
+    interface Password {
+        bcrypt: string
     }
 
     /**

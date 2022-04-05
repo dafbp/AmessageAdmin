@@ -7,6 +7,7 @@ import HeaderDropdown from '../HeaderDropdown'
 import styles from './index.less'
 import { outLogin } from '@/services/ant-design-pro/api'
 import type { MenuInfo } from 'rc-menu/lib/interface'
+import { clearDataFromLocalStorage } from '@/localData'
 
 export type GlobalHeaderRightProps = {
     menu?: boolean
@@ -19,6 +20,10 @@ const loginOut = async () => {
     await outLogin()
     const { query = {}, pathname } = history.location
     const { redirect } = query
+    // Clear data before login
+    clearDataFromLocalStorage({ key: 'userId' })
+    clearDataFromLocalStorage({ key: 'loginToken' })
+    clearDataFromLocalStorage({ key: 'userInfo' })
     // Note: There may be security issues, please note
     if (window.location.pathname !== '/user/login' && !redirect) {
         history.replace({
@@ -27,6 +32,7 @@ const loginOut = async () => {
                 redirect: pathname,
             }),
         })
+        window.location.reload()
     }
 }
 
@@ -64,7 +70,7 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
 
     const { currentUser } = initialState
 
-    if (!currentUser || !currentUser.name) {
+    if (!currentUser || !currentUser?.name) {
         return loading
     }
 
@@ -93,8 +99,8 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
     return (
         <HeaderDropdown overlay={menuHeaderDropdown}>
             <span className={`${styles.action} ${styles.account}`}>
-                <Avatar size='small' className={styles.avatar} src={currentUser.avatar} alt='avatar' />
-                <span className={`${styles.name} anticon`}>{currentUser.name}</span>
+                <Avatar size='small' className={styles.avatar} src={`https://chat.altisss.vn/avatar/${currentUser?.username}`} alt='avatar' />
+                <span className={`${styles.name} anticon`}>{currentUser?.name}</span>
             </span>
         </HeaderDropdown>
     )

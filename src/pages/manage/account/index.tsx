@@ -55,7 +55,7 @@ const TableList: React.FC = () => {
     const [currentRow, setCurrentRow] = useState<IUser>()
     const [currentRowUserRolesUpdate, setCurrentRowUserRolesUpdate] = useState<IUser['roles']>([])
     const [selectedRowsState, setSelectedRows] = useState<IUser[]>([])
-    const [onlyBroker, setOnlyBroker] = useState(true)
+    const [onlyBroker, setOnlyBroker] = useState(false)
 
     useEffect(() => {
         setCurrentRowUserRolesUpdate(currentRow?.roles || [])
