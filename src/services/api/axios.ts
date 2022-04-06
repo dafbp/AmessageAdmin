@@ -97,7 +97,7 @@ export const API_MANAGE = {
         }
     },
     updateRoomInfo: async (body: API.UpdateRoomInfo, options?: { [key: string]: any }) => {
-        return request<API.CommonResponse>(`${domain}users.update`, {
+        return request<API.CommonResponse>(`${domain}rooms.saveRoomSettings`, {
             method: 'POST',
             headers: config.headers,
             data: body,

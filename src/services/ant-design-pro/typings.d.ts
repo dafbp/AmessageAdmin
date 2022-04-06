@@ -10,18 +10,18 @@ declare namespace API {
     }
     type UpdateRoomInfo = {
         rid: string
-        roomName: string
-        roomTopic: string
-        roomType: string
-        readOnly: boolean
-        default: boolean
-        favorite: {
+        roomName?: string
+        roomTopic?: string
+        roomType?: string
+        readOnly?: boolean
+        default?: boolean
+        favorite?: {
             defaultValue: boolean
             favorite: boolean
         }
-        featured: boolean
-        roomDescription: string
-        roomAnnouncement: string
+        featured?: boolean
+        roomDescription?: string
+        roomAnnouncement?: string
     }
     interface ICurrentUserInfo {
         _id: string

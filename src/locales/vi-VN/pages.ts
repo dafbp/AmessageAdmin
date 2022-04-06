@@ -64,4 +64,6 @@ export default {
     'pages.searchTable.tenThollions': '0000',
     'pages.searchTable.batchDeletion': 'xóa bacth',
     'pages.searchTable.batchApproval': 'phê duyệt hàng loạt',
+
+    'pages.Manage.Room.Edit_Room_Info': 'Chỉnh sửa thông tin room',
 }

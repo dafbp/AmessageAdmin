@@ -28,7 +28,7 @@ export default {
     'menu.list.search-list': 'Danh sách Tìm kiếm',
     'menu.list.search-list.articles': 'Danh sách tìm kiếm (bài viết)',
     'menu.list.search-list.projects': 'Danh sách Tìm kiếm (dự án)',
-    'menu.list.search-list.appilities': 'Danh sách Tìm kiếm (ứng dụng)',
+    'menu.list.search-list.applications': 'Danh sách Tìm kiếm (ứng dụng)',
     'menu.profile': 'Hồ sơ',
     'menu.profile.basic': 'Cấu hình cơ bản',
     'menu.profile.advanced': 'Cấu hình nâng cao',
@@ -52,5 +52,7 @@ export default {
     'menu.Manage': 'Quản lý',
     'menu.Manage.Account': 'Tài khoản',
     'menu.Manage.Room': 'Phòng',
-    'menu.Manage.Search_Account': 'Tài khoản Tìm kiếm',
+    'menu.Manage.Search_Account': 'Tìm kiếm Tài khoản',
+    'menu.Broker_Center': 'Trung tâm Broker',
+    'menu.Broker_Center.Broker_Center': 'Trung tâm Broker',
 }

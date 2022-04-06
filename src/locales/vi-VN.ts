@@ -11,7 +11,7 @@ export default {
     'layout.user.link.help': 'help',
     'layout.user.link.privacy': 'quyền riêng tư',
     'layout.user.link.terms': 'Điều khoản',
-    'app.copyright.produced': 'Phòng Kỹ thuật Trải nghiệm Ant Group',
+    'app.copyright.produced': 'Bản quyền thuộc về ...',
     'app.preview.down.block': 'Tải trang này xuống dự án cục bộ của bạn',
     'app.welcome.link.fetch-blocks': 'Nhận tất cả các khối',
     'app.welcome.link.block-list': 'Dựa trên phát triển Block, trang tiêu chuẩn xây dựng nhanh',
