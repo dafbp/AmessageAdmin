@@ -22,6 +22,7 @@ declare namespace API {
         featured?: boolean
         roomDescription?: string
         roomAnnouncement?: string
+        roomAvatar?: any
     }
     interface ICurrentUserInfo {
         _id: string

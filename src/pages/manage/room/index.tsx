@@ -37,6 +37,8 @@ const TableList: React.FC = () => {
     const [currentRow, setCurrentRow] = useState<IRoomInfo>()
     const [currentRowDetails, setCurrentRowDetails] = useState<IRoomInfo>()
     const [selectedRowsState, setSelectedRows] = useState<IRoomInfo[]>([])
+    const [isDefaultRoomAvatar, setIsDefaultRoomAvatar] = useState(false)
+
     /** International allocation */
     const [params, setParams] = useState({
         text: '',
@@ -262,7 +264,7 @@ const TableList: React.FC = () => {
                     setModalEditVisible(false)
                     console.log('>>> value', value)
                     const payload = {
-                        rid: value.id,
+                        rid: value.rid,
                         roomName: value.fname,
                         roomDescription: value.description,
                         roomAnnouncement: value.announcement,
@@ -270,12 +272,17 @@ const TableList: React.FC = () => {
                         roomType: value.roomType ? 'p' : 'c',
                         readOnly: !!value.readOnly,
                     }
+                    if (isDefaultRoomAvatar) {
+                        payload.roomAvatar = null
+                    }
                     const updateSuccess = await updateRoomInfo(payload, currentRow)
+                    setIsDefaultRoomAvatar(false)
                     if (!updateSuccess) {
                         message.error('Please try again!')
                     } else {
                         message.success('Update room info success')
                         getRoomsData()
+                        setCurrentRowDetails(undefined)
                     }
                 }}
             >
@@ -285,13 +292,8 @@ const TableList: React.FC = () => {
                 <Row style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 16 }}>
                     <Button
                         onClick={async () => {
-                            // const updateSuccess = await resetAvatarToDefault({ userId: currentRow?._id || '' })
-                            // if (!updateSuccess) {
-                            //     message.error('Please try again!')
-                            // } else {
-                            //     refetchListUser()
-                            //     setShowDetail(false)
-                            // }
+                            setIsDefaultRoomAvatar(true)
+                            message.success('Hãy lưu lại để thực hiện thay đổi')
                         }}
                     >
                         Set Default Avatar
@@ -361,7 +363,10 @@ const TableList: React.FC = () => {
                         />
                     </Descriptions.Item>
                     <Descriptions.Item label='Avatar'>
-                        <Avatar size='large' src={`https://chat.altisss.vn/avatar/room/${currentRowDetails?._id}`} />
+                        <Avatar
+                            size='large'
+                            src={`https://chat.altisss.vn/avatar/room/${isDefaultRoomAvatar ? currentRowDetails?.fname : currentRowDetails?._id}`}
+                        />
                     </Descriptions.Item>
                     <Descriptions.Item label='Room Name'>{currentRowDetails?.name}</Descriptions.Item>
                     <Descriptions.Item label='Người sở hữu'>{currentRowDetails?.u?.username}</Descriptions.Item>
