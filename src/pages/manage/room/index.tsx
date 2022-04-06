@@ -3,7 +3,7 @@ import ProForm, { ModalForm, ProFormText, ProFormTextArea, ProFormSwitch } from 
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout'
 import type { ActionType, ProColumns } from '@ant-design/pro-table'
 import ProTable from '@ant-design/pro-table'
-import { Avatar, Button, Checkbox, Descriptions, Divider, Drawer, message, Row, Switch, Tooltip } from 'antd'
+import { Avatar, Button, Checkbox, Descriptions, Divider, Drawer, message, Row, Switch, Tooltip, Form } from 'antd'
 import React, { useEffect, useRef, useState } from 'react'
 import { API_MANAGE } from '../../../services/api/axios'
 import type { TableListPagination } from './data'
@@ -45,6 +45,8 @@ const TableList: React.FC = () => {
         itemsPerPage: 25,
     })
 
+    const [formEditRoom] = Form.useForm()
+
     const [listRooms, setListRooms] = useState([])
 
     const getRoomsData = async () => {
@@ -73,6 +75,7 @@ const TableList: React.FC = () => {
         } else {
             setCurrentRowDetails(undefined)
         }
+        formEditRoom.resetFields()
     }
 
     const columns: ProColumns<IRoomInfo>[] = [
@@ -144,6 +147,7 @@ const TableList: React.FC = () => {
                     onClick={() => {
                         setModalEditVisible(true)
                         setCurrentRow(record)
+                        formEditRoom.resetFields()
                     }}
                 >
                     Configure
@@ -166,7 +170,7 @@ const TableList: React.FC = () => {
             }))
         }
     }
-    console.log('listRooms', currentRow)
+    console.log('listRooms', listRooms, currentRow, currentRowDetails)
 
     return (
         <PageContainer>
@@ -251,12 +255,12 @@ const TableList: React.FC = () => {
             <ModalForm
                 title={<FormattedMessage id='pages.Manage.Room.Edit_Room_Info' />}
                 width='400px'
-                visible={editModalVisible}
+                form={formEditRoom}
+                visible={currentRowDetails && editModalVisible}
                 onVisibleChange={setModalEditVisible}
                 onFinish={async (value) => {
                     setModalEditVisible(false)
                     console.log('>>> value', value)
-
                     const payload = {
                         rid: value.id,
                         roomName: value.fname,
@@ -266,16 +270,17 @@ const TableList: React.FC = () => {
                         roomType: value.roomType ? 'p' : 'c',
                         readOnly: !!value.readOnly,
                     }
-                    // const updateSuccess = await updateRoomInfo(payload, currentRow)
-                    // if (!updateSuccess) {
-                    //     message.error('Please try again!')
-                    // } else {
-                    //     getRoomsData()
-                    // }
+                    const updateSuccess = await updateRoomInfo(payload, currentRow)
+                    if (!updateSuccess) {
+                        message.error('Please try again!')
+                    } else {
+                        message.success('Update room info success')
+                        getRoomsData()
+                    }
                 }}
             >
                 <Row style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <Avatar size={64} src={`https://chat.altisss.vn/avatar/room/${currentRow?._id}`} />
+                    <Avatar size={64} src={`https://chat.altisss.vn/avatar/room/${currentRowDetails?._id}`} />
                 </Row>
                 <Row style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 16 }}>
                     <Button
@@ -300,7 +305,7 @@ const TableList: React.FC = () => {
                         },
                     ]}
                     width='md'
-                    initialValue={currentRow?._id}
+                    initialValue={currentRowDetails?._id}
                     name='rid'
                     hidden
                     label='Room Id'
@@ -313,49 +318,26 @@ const TableList: React.FC = () => {
                         },
                     ]}
                     width='md'
-                    initialValue={currentRow?.fname}
+                    initialValue={currentRowDetails?.fname}
                     name='fname'
                     label='Room Name'
                 />
 
-                <ProFormText
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Desicription is required',
-                        },
-                    ]}
-                    width='md'
-                    initialValue={currentRow?.description}
-                    name='description'
-                    label='Desicription'
+                <ProFormText width='md' initialValue={currentRowDetails?.description} name='description' label='Desicription' />
+                <ProFormTextArea width='md' initialValue={currentRowDetails?.announcement} name='announcement' label='announcement' />
+                <ProFormTextArea width='md' initialValue={currentRowDetails?.topic} name='topic' label='topic' />
+                <ProFormSwitch
+                    initialValue={currentRowDetails?.t === 'p'}
+                    label='Private'
+                    tooltip={'Just invited people can access this channel.'}
+                    name='roomType'
                 />
-                <ProFormTextArea
-                    rules={[
-                        {
-                            required: true,
-                            message: 'announcement is required',
-                        },
-                    ]}
-                    width='md'
-                    initialValue={currentRow?.announcement}
-                    name='announcement'
-                    label='announcement'
+                <ProFormSwitch
+                    initialValue={currentRowDetails?.ro}
+                    label='Read Only'
+                    tooltip={'Only authorized users can write new messages'}
+                    name='readOnly'
                 />
-                <ProFormTextArea
-                    rules={[
-                        {
-                            required: true,
-                            message: 'topic is required',
-                        },
-                    ]}
-                    width='md'
-                    initialValue={currentRow?.topic}
-                    name='topic'
-                    label='topic'
-                />
-                <ProFormSwitch initialValue={currentRow?.t === 'p'} label='Private' tooltip={'Just invited people can access this channel.'} name='roomType' />
-                <ProFormSwitch initialValue={currentRow?.ro} label='Read Only' tooltip={'Only authorized users can write new messages'} name='readOnly' />
             </ModalForm>
 
             <Drawer
@@ -367,32 +349,33 @@ const TableList: React.FC = () => {
                 }}
                 closable={false}
             >
-                <Descriptions bordered column={1} title='Thông tin user' style={{ marginBottom: 32 }}>
+                <Descriptions bordered column={1} title='Thông tin room' style={{ marginBottom: 32 }}>
                     <Descriptions.Item label='Chỉnh sửa'>
                         <EditFilled
                             size={48}
                             onClick={() => {
                                 setShowDetail(false)
                                 setModalEditVisible(true)
+                                formEditRoom.resetFields()
                             }}
                         />
                     </Descriptions.Item>
                     <Descriptions.Item label='Avatar'>
-                        <Avatar size='large' src={`https://chat.altisss.vn/avatar/room/${currentRow?._id}`} />
+                        <Avatar size='large' src={`https://chat.altisss.vn/avatar/room/${currentRowDetails?._id}`} />
                     </Descriptions.Item>
-                    <Descriptions.Item label='Room Name'>{currentRow?.name}</Descriptions.Item>
-                    <Descriptions.Item label='Người sở hữu'>{currentRow?.u?.username}</Descriptions.Item>
-                    <Descriptions.Item label='Description'>{currentRow?.description}</Descriptions.Item>
+                    <Descriptions.Item label='Room Name'>{currentRowDetails?.name}</Descriptions.Item>
+                    <Descriptions.Item label='Người sở hữu'>{currentRowDetails?.u?.username}</Descriptions.Item>
+                    <Descriptions.Item label='Description'>{currentRowDetails?.description}</Descriptions.Item>
                 </Descriptions>
                 <Divider style={{ marginBottom: 32 }} />
                 <Descriptions column={1} title='Thông tin thêm' style={{ marginBottom: 32 }} bordered>
-                    <Descriptions.Item label='Công bố'>{currentRow?.announcement}</Descriptions.Item>
-                    <Descriptions.Item label='Topic'>{currentRow?.topic}</Descriptions.Item>
+                    <Descriptions.Item label='Công bố'>{currentRowDetails?.announcement}</Descriptions.Item>
+                    <Descriptions.Item label='Topic'>{currentRowDetails?.topic}</Descriptions.Item>
                     <Descriptions.Item label={<Tooltip title={'Just invited people can access this channel.'}>Private</Tooltip>}>
-                        <Switch disabled defaultChecked={currentRow?.t === 'p'} />
+                        <Switch disabled defaultChecked={currentRowDetails?.t === 'p'} />
                     </Descriptions.Item>
                     <Descriptions.Item label={<Tooltip title={'Only authorized users can write new messages'}>Read Only</Tooltip>}>
-                        <Switch disabled defaultChecked={currentRow?.ro} />
+                        <Switch disabled defaultChecked={currentRowDetails?.ro} />
                     </Descriptions.Item>
                 </Descriptions>
                 <Divider style={{ marginBottom: 32 }} />

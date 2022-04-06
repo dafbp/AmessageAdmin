@@ -71,7 +71,7 @@ export const API_MANAGE = {
                 headers: config.headers,
             })
             return {
-                data: resp.data.data,
+                data: resp.data,
                 success: resp.data.success,
             }
         } catch (err) {
