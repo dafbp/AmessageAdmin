@@ -82,7 +82,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
             : [],
         menuHeaderRender: undefined,
         // Custom 403 Page
-        // unAccessible: <div>unAccessible</div>,
+        unAccessible: <div>unAccessible</div>,
         ...initialState?.settings,
     }
 }
@@ -109,7 +109,7 @@ const errorHandler = function (error: any) {
 
     throw error // If throw. The error will continue to be thrown.
 }
-const headersMiddleware = async (ctx, next) => {
+const headersMiddleware = async (ctx: any, next: any) => {
     console.log('headersMiddleware a1', ctx)
     await next()
     console.log('headersMiddleware a2')

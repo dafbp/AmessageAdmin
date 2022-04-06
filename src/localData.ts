@@ -17,7 +17,7 @@ export const getDataFromLocalStorage = async ({ key }: KeyLocalStorage): Promise
         const data = localStorage.getItem(key) || ''
         return JSON.parse(data)
     } catch (error) {
-        console.log('error_parse_json getDataFromLocalStorage', key)
+        console.log('error_parse_json getDataFromLocalStorage', key, error)
         return null
     }
 }
@@ -25,7 +25,7 @@ export const clearDataFromLocalStorage = async ({ key }: KeyLocalStorage): Promi
     try {
         localStorage.removeItem(key)
     } catch (error) {
-        console.log('error clearDataFromLocalStorage')
-        return error
+        console.log('error clearDataFromLocalStorage', key, error)
+        return null
     }
 }

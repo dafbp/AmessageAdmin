@@ -7,14 +7,14 @@ import settings from './vi-VN/settings'
 import pages from './vi-VN/pages'
 
 export default {
-    'navBar.lang': 'language',
+    'navBar.lang': 'ngôn ngữ',
     'layout.user.link.help': 'help',
-    'layout.user.link.privacy': 'privacy',
-    'layout.user.link.terms': 'Clause',
-    'app.copyright.produced': 'Ant Group Experience Technical Department',
-    'app.preview.down.block': 'Download this page to your local project',
-    'app.welcome.link.fetch-blocks': 'Get all blocks',
-    'app.welcome.link.block-list': 'Based on Block development, fast build standard page',
+    'layout.user.link.privacy': 'quyền riêng tư',
+    'layout.user.link.terms': 'Điều khoản',
+    'app.copyright.produced': 'Phòng Kỹ thuật Trải nghiệm Ant Group',
+    'app.preview.down.block': 'Tải trang này xuống dự án cục bộ của bạn',
+    'app.welcome.link.fetch-blocks': 'Nhận tất cả các khối',
+    'app.welcome.link.block-list': 'Dựa trên phát triển Block, trang tiêu chuẩn xây dựng nhanh',
     ...pages,
     ...globalHeader,
     ...menu,

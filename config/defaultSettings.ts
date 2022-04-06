@@ -1,21 +1,21 @@
-import { Settings as LayoutSettings } from '@ant-design/pro-layout';
+import { Settings as LayoutSettings } from '@ant-design/pro-layout'
 
 const Settings: LayoutSettings & {
-  pwa?: boolean;
-  logo?: string;
+    pwa?: boolean
+    logo?: string
 } = {
-  navTheme: 'light',
-  // 拂晓蓝
-  primaryColor: '#60B44A',
-  layout: 'mix',
-  contentWidth: 'Fluid',
-  fixedHeader: false,
-  fixSiderbar: true,
-  colorWeak: false,
-  title: 'A-Message Admin',
-  pwa: false,
-  logo: 'https://altisss.vn/static/img/logo.png',
-  iconfontUrl: '',
-};
+    navTheme: 'light',
+    // Dawn
+    primaryColor: '#60B44A',
+    layout: 'mix',
+    contentWidth: 'Fluid',
+    fixedHeader: false,
+    fixSiderbar: true,
+    colorWeak: false,
+    title: 'A-Message Admin',
+    pwa: false,
+    logo: 'https://altisss.vn/static/img/logo.png',
+    iconfontUrl: '',
+}
 
-export default Settings;
+export default Settings

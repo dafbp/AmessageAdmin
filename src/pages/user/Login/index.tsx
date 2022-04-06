@@ -115,7 +115,7 @@ const Login: React.FC = () => {
                         await handleLoginRocketChat(values)
                     }}
                 >
-                    <Tabs activeKey={type} onChange={setType}>
+                    {/* <Tabs activeKey={type} onChange={setType}>
                         <Tabs.TabPane
                             key='account'
                             tab={intl.formatMessage({
@@ -130,7 +130,7 @@ const Login: React.FC = () => {
                                 defaultMessage: 'Mobile phone number login',
                             })}
                         />
-                    </Tabs>
+                    </Tabs> */}
 
                     {status === 'error' && loginType === 'account' && (
                         <LoginMessage

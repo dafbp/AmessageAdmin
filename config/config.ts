@@ -21,7 +21,7 @@ export default defineConfig({
     // https://umijs.org/zh-CN/plugins/plugin-locale
     locale: {
         // default zh-CN
-        default: 'en-US',
+        default: 'vi-VN',
         antd: true,
         // default true, when it is true, will use `navigator.language` overwrite default
         baseNavigator: true,
@@ -117,6 +117,19 @@ export default defineConfig({
                     icon: 'smile',
                     path: '/manage/room',
                     component: 'manage/room',
+                },
+            ],
+        },
+        {
+            path: '/broker-center',
+            icon: 'table',
+            name: 'Broker_Center',
+            routes: [
+                {
+                    name: 'Broker_Center',
+                    icon: 'smile',
+                    path: '/broker-center/search-account',
+                    component: 'manage/search-account',
                 },
             ],
         },
@@ -365,18 +378,18 @@ export default defineConfig({
     // Fast Refresh Hot update
     fastRefresh: {},
     openAPI: [
-        {
-            requestLibPath: "import { request } from 'umi'",
-            // Or use online version
-            // schemaPath: "https://gw.alipayobjects.com/os/antfincdn/M%24jrzTTYJN/oneapi.json"
-            schemaPath: join(__dirname, 'oneapi.json'),
-            mock: false,
-        },
-        {
-            requestLibPath: "import { request } from 'umi'",
-            schemaPath: 'https://gw.alipayobjects.com/os/antfincdn/CA1dOm%2631B/openapi.json',
-            projectName: 'swagger',
-        },
+        // {
+        //     requestLibPath: "import { request } from 'umi'",
+        //     // Or use online version
+        //     // schemaPath: "https://gw.alipayobjects.com/os/antfincdn/M%24jrzTTYJN/oneapi.json"
+        //     schemaPath: join(__dirname, 'oneapi.json'),
+        //     mock: false,
+        // },
+        // {
+        //     requestLibPath: "import { request } from 'umi'",
+        //     schemaPath: 'https://gw.alipayobjects.com/os/antfincdn/CA1dOm%2631B/openapi.json',
+        //     projectName: 'swagger',
+        // },
     ],
     nodeModulesTransform: {
         type: 'none',
