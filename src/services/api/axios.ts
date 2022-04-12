@@ -120,4 +120,12 @@ export const API_MANAGE = {
             ...(options || {}),
         })
     },
+    confirmDeleteRoom: async (body: { roomId?: string; roomName?: string }, options?: { [key: string]: any }) => {
+        return request<API.CommonResponse>(`${domain}groups.delete`, {
+            method: 'POST',
+            headers: config.headers,
+            data: body,
+            ...(options || {}),
+        })
+    },
 }

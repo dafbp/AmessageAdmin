@@ -3,7 +3,7 @@ import ProForm, { ModalForm, ProFormText, ProFormTextArea, ProFormSwitch } from 
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout'
 import type { ActionType, ProColumns } from '@ant-design/pro-table'
 import ProTable from '@ant-design/pro-table'
-import { Avatar, Button, Checkbox, Descriptions, Divider, Drawer, message, Row, Switch, Tooltip, Form } from 'antd'
+import { Avatar, Button, Checkbox, Descriptions, Divider, Drawer, message, Row, Switch, Tooltip, Form, Popconfirm } from 'antd'
 import React, { useEffect, useRef, useState } from 'react'
 import { API_MANAGE } from '../../../services/api/axios'
 import type { TableListPagination } from './data'
@@ -20,6 +20,21 @@ const updateRoomInfo = async (body: API.UpdateRoomInfo, currentRow?: IRoomInfo) 
     } catch (error) {
         hide()
         message.error('If you fail, please try again!')
+        return false
+    }
+}
+
+const confirmDeleteRoom = async (body: { roomId?: string; roomName?: string }) => {
+    // ------
+    const hide = message.loading('Đang xóa')
+    try {
+        await API_MANAGE.confirmDeleteRoom(body)
+        hide()
+        message.success('Xóa room thành công')
+        return true
+    } catch (error) {
+        hide()
+        message.error('Xóa room thất bại')
         return false
     }
 }
@@ -78,6 +93,13 @@ const TableList: React.FC = () => {
             setCurrentRowDetails(undefined)
         }
         formEditRoom.resetFields()
+    }
+
+    const confirmDelete = async () => {
+        const success = await confirmDeleteRoom({ roomId: currentRow?._id, roomName: currentRow?.name })
+        if (success) {
+            getRoomsData()
+        }
     }
 
     const columns: ProColumns<IRoomInfo>[] = [
@@ -152,8 +174,19 @@ const TableList: React.FC = () => {
                         formEditRoom.resetFields()
                     }}
                 >
-                    Configure
+                    Edit
                 </a>,
+
+                <Popconfirm key='delete' title='Bạn muốn xóa phòng này？' okText='Yes' cancelText='No' onConfirm={confirmDelete}>
+                    <a
+                        href='#'
+                        onClick={() => {
+                            setCurrentRow(record)
+                        }}
+                    >
+                        Xóa
+                    </a>
+                </Popconfirm>,
             ],
         },
     ]
