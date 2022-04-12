@@ -96,7 +96,7 @@ const TableList: React.FC = () => {
     }
 
     const confirmDelete = async () => {
-        const success = await confirmDeleteRoom({ roomId: currentRow?._id, roomName: currentRow?.name })
+        const success = await confirmDeleteRoom({ roomId: currentRowDetails?._id, roomName: currentRowDetails?.name })
         if (success) {
             getRoomsData()
         }
@@ -174,19 +174,8 @@ const TableList: React.FC = () => {
                         formEditRoom.resetFields()
                     }}
                 >
-                    Edit
+                    Sửa
                 </a>,
-
-                <Popconfirm key='delete' title='Bạn muốn xóa phòng này？' okText='Yes' cancelText='No' onConfirm={confirmDelete}>
-                    <a
-                        href='#'
-                        onClick={() => {
-                            setCurrentRow(record)
-                        }}
-                    >
-                        Xóa
-                    </a>
-                </Popconfirm>,
             ],
         },
     ]
@@ -417,6 +406,11 @@ const TableList: React.FC = () => {
                     </Descriptions.Item>
                 </Descriptions>
                 <Divider style={{ marginBottom: 32 }} />
+                <Popconfirm key='delete' title='Bạn muốn xóa phòng này？' okText='Yes' cancelText='No' onConfirm={confirmDelete}>
+                    <Button danger block type='primary'>
+                        Xóa
+                    </Button>
+                </Popconfirm>
             </Drawer>
         </PageContainer>
     )
