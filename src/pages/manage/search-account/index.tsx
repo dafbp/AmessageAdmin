@@ -5,7 +5,7 @@ import { ModalForm, ProFormText, ProFormSelect } from '@ant-design/pro-form'
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout'
 import type { ActionType, ProColumns } from '@ant-design/pro-table'
 import ProTable from '@ant-design/pro-table'
-import { Avatar, Button, Checkbox, Descriptions, Divider, Drawer, message, Row, Typography, Upload, Select, Form } from 'antd'
+import { Avatar, Button, Checkbox, Descriptions, Divider, Drawer, message, Row, Typography, Upload, Select, Form, Popconfirm } from 'antd'
 import React, { useRef, useState, useEffect } from 'react'
 import { useRequest } from 'umi'
 import type { TableListPagination } from './data'
@@ -37,6 +37,19 @@ const resetAvatarToDefault = async (body: { userId: string }) => {
     } catch (error) {
         hide()
         message.error('Thay đổi avatar mặc định thất bại')
+        return false
+    }
+}
+const activeOrDeactiveUser = async (body: { userId: string; activeStatus: boolean }) => {
+    const hide = message.loading('Đang thực hiện yêu cầu')
+    try {
+        await API_MANAGE.activeOrDeactiveUser(body)
+        hide()
+        message.success('Yêu cầu thực hiện thành công')
+        return true
+    } catch (error) {
+        hide()
+        message.error('Yêu cầu thực hiện thất bại')
         return false
     }
 }
@@ -76,6 +89,13 @@ const TableList: React.FC = () => {
         } else {
             formEditUser.resetFields()
             setSelectUserInfo(undefined)
+        }
+    }
+
+    const onActiveOrDeactiveUser = async (body: { userId: string; activeStatus: boolean }) => {
+        const success = await activeOrDeactiveUser({ userId: body.userId, activeStatus: body.activeStatus })
+        if (success) {
+            refetchListUserSearch({})
         }
     }
 
@@ -119,6 +139,25 @@ const TableList: React.FC = () => {
             // valueType: 'textarea',
             renderText: (val: IUser['customFields']) => {
                 return val?.phone
+            },
+        },
+        {
+            title: 'active',
+            dataIndex: 'active',
+            renderText: (isActive: IUser['active'], row) => {
+                return (
+                    <Popconfirm
+                        key='activeUsers'
+                        title={!isActive ? 'Bạn muốn kích hoạt người dùng này?' : 'Bạn muốn chặn người dùng này?'}
+                        okText='Yes'
+                        cancelText='No'
+                        onConfirm={() => onActiveOrDeactiveUser({ userId: row._id, activeStatus: !row.active })}
+                    >
+                        <Button danger={isActive} type='primary' size='small'>
+                            {isActive ? 'Chặn/Block' : 'Bỏ chặn'}
+                        </Button>
+                    </Popconfirm>
+                )
             },
         },
         {
@@ -302,6 +341,19 @@ const TableList: React.FC = () => {
                     <Descriptions.Item label='Số lượng user quản lý trực tiếp'>101</Descriptions.Item>
                 </Descriptions>
                 <Divider style={{ marginBottom: 32 }} />
+                <Popconfirm
+                    key='activeUsers'
+                    title={!selectUserInfo?.active ? 'Bạn muốn kích hoạt người dùng này?' : 'Bạn muốn chặn người dùng này?'}
+                    okText='Yes'
+                    cancelText='No'
+                    onConfirm={() => onActiveOrDeactiveUser({ userId: selectUserInfo?._id || '', activeStatus: !selectUserInfo?.active })}
+                >
+                    <Button danger={selectUserInfo?.active} block type='primary'>
+                        {selectUserInfo?.active ? 'Chặn/Block' : 'Bỏ chặn'}
+                    </Button>
+                </Popconfirm>
+                <Divider style={{ marginBottom: 64 }} />
+
                 {/* </Card> */}
             </Drawer>
             <ModalForm

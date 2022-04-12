@@ -128,4 +128,12 @@ export const API_MANAGE = {
             ...(options || {}),
         })
     },
+    activeOrDeactiveUser: async (body: { userId?: string; activeStatus?: boolean }, options?: { [key: string]: any }) => {
+        return request<API.CommonResponse>(`${domain}users.setActiveStatus`, {
+            method: 'POST',
+            headers: config.headers,
+            data: body,
+            ...(options || {}),
+        })
+    },
 }
